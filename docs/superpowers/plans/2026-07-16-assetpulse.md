@@ -3117,7 +3117,7 @@ const ACTION_NS = 'com.sap.gateway.srvd.zassetpulse_srv.v0001';
 
 function parseKey(pathname: string, entity: string): string | null {
   const match = pathname.match(new RegExp(`/api/sap/${entity}\\('([^']+)'\\)`));
-  return match ? match[1] : null;
+  return match?.[1] ?? null;
 }
 
 function applyListParams<T extends Record<string, unknown>>(list: T[], url: URL) {
@@ -3125,8 +3125,9 @@ function applyListParams<T extends Record<string, unknown>>(list: T[], url: URL)
   const filter = url.searchParams.get('$filter');
   if (filter) {
     const match = filter.match(/(\w+) eq '([^']+)'/);
-    if (match) {
-      const [, field, value] = match;
+    const field = match?.[1];
+    const value = match?.[2];
+    if (field !== undefined && value !== undefined) {
       result = result.filter((item) => item[field] === value);
     }
   }
@@ -3537,7 +3538,7 @@ describe('POST /api/sap/[...path]', () => {
 
     expect(response.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const writeCallHeaders = fetchMock.mock.calls[1][1].headers as Record<string, string>;
+    const writeCallHeaders = fetchMock.mock.calls[1]?.[1]?.headers as Record<string, string>;
     expect(writeCallHeaders['x-csrf-token']).toBe('tok123');
     expect(writeCallHeaders.Cookie).toBe('sap-session=abc');
   });
