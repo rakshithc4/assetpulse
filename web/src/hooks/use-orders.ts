@@ -13,7 +13,7 @@ export function useOrderList(params?: { assignedTo?: string }) {
     queryKey: ['orders', params],
     queryFn: async () => {
       const search = new URLSearchParams();
-      if (params?.assignedTo) search.set('$filter', `assigned_to eq '${params.assignedTo}'`);
+      if (params?.assignedTo) search.set('$filter', `AssignedTo eq '${params.assignedTo}'`);
       search.set('$orderby', 'ChangedAt desc');
       const data = await apiFetch<unknown>(`/api/sap/WorkOrder?${search}`);
       return listSchema.parse(data).value;

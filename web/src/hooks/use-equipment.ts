@@ -10,7 +10,7 @@ export function useEquipmentList(params?: { opStatus?: Equipment['OpStatus']; se
     queryKey: ['equipment', params],
     queryFn: async () => {
       const search = new URLSearchParams();
-      if (params?.opStatus) search.set('$filter', `op_status eq '${params.opStatus}'`);
+      if (params?.opStatus) search.set('$filter', `OpStatus eq '${params.opStatus}'`);
       if (params?.search) search.set('$search', params.search);
       const data = await apiFetch<unknown>(`/api/sap/Equipment?${search}`);
       return listSchema.parse(data).value;
