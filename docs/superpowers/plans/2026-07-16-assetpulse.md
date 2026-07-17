@@ -2422,6 +2422,14 @@ module.exports = {
 };
 ```
 
+- [ ] **Step 4.5: Write `web/.eslintrc.json`** (missing from the original Step 1 dependency list otherwise being dead weight — `eslint-config-next` needs this to do anything)
+
+```json
+{
+  "extends": "next/core-web-vitals"
+}
+```
+
 - [ ] **Step 5: Write `web/tailwind.config.ts`**
 
 ```typescript
