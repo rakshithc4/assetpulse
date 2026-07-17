@@ -764,7 +764,6 @@ CLASS lhc_equipment IMPLEMENTATION.
 
     LOOP AT equipment INTO DATA(equip).
       IF equip-Name IS INITIAL.
-        APPEND VALUE #( %tky = equip-%tky ) TO reported-equipment.
         APPEND VALUE #( %tky = equip-%tky ) TO failed-equipment.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid     = zcx_assetpulse=>field_empty
                                                      field_name = 'Name' )
