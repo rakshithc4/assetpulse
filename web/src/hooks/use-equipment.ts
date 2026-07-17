@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { apiFetch } from '@/lib/api';
 import { equipmentSchema, type Equipment } from '@/lib/types';
@@ -16,6 +16,7 @@ export function useEquipmentList(params?: { opStatus?: Equipment['OpStatus']; se
       return listSchema.parse(data).value;
     },
     refetchInterval: 30_000,
+    placeholderData: keepPreviousData,
   });
 }
 
