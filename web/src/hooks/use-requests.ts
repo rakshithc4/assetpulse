@@ -13,7 +13,7 @@ export function useRequestList(params?: { status?: MaintenanceRequest['Status'];
     queryKey: ['requests', params],
     queryFn: async () => {
       const search = new URLSearchParams();
-      if (params?.status) search.set('$filter', `status eq '${params.status}'`);
+      if (params?.status) search.set('$filter', `Status eq '${params.status}'`);
       if (params?.search) search.set('$search', params.search);
       search.set('$orderby', 'ChangedAt desc');
       const data = await apiFetch<unknown>(`/api/sap/MaintenanceRequest?${search}`);
