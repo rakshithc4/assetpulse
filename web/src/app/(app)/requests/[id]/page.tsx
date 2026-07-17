@@ -21,7 +21,7 @@ export default function RequestDetailPage() {
 
   const [convertOpen, setConvertOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('MEDIUM');
+  const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | null>(null);
   const [note, setNote] = useState('');
   const [noteError, setNoteError] = useState('');
 
@@ -32,6 +32,7 @@ export default function RequestDetailPage() {
 
   const req = requestQuery.data;
   const canAct = role ? canActOnRequest(role, 'convert_request', { status: req.Status }) : false;
+  const selectedPriority = priority ?? req.Severity;
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
@@ -60,10 +61,10 @@ export default function RequestDetailPage() {
         description="Set the work order priority (defaults to the request's severity)."
         confirmLabel="Convert"
         pending={convertRequest.isPending}
-        onConfirm={() => convertRequest.mutate({ Priority: priority }, { onSuccess: () => setConvertOpen(false) })}
+        onConfirm={() => convertRequest.mutate({ Priority: selectedPriority }, { onSuccess: () => setConvertOpen(false) })}
       >
         <select
-          value={priority}
+          value={selectedPriority}
           onChange={(e) => setPriority(e.target.value as typeof priority)}
           className="w-full rounded-md border border-surface-raised bg-surface-panel px-2 py-2 text-sm text-content-primary"
         >
