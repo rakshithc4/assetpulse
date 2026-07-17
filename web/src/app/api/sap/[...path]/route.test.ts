@@ -59,7 +59,7 @@ describe('POST /api/sap/[...path]', () => {
 
     expect(response.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const writeCallHeaders = fetchMock.mock.calls[1][1].headers as Record<string, string>;
+    const writeCallHeaders = fetchMock.mock.calls[1]?.[1]?.headers as Record<string, string>;
     expect(writeCallHeaders['x-csrf-token']).toBe('tok123');
     expect(writeCallHeaders.Cookie).toBe('sap-session=abc');
   });
