@@ -3803,7 +3803,7 @@ export function useEquipmentList(params?: { opStatus?: Equipment['OpStatus']; se
     queryKey: ['equipment', params],
     queryFn: async () => {
       const search = new URLSearchParams();
-      if (params?.opStatus) search.set('$filter', `op_status eq '${params.opStatus}'`);
+      if (params?.opStatus) search.set('$filter', `OpStatus eq '${params.opStatus}'`);
       if (params?.search) search.set('$search', params.search);
       const data = await apiFetch<unknown>(`/api/sap/Equipment?${search}`);
       return listSchema.parse(data).value;
@@ -3839,7 +3839,7 @@ export function useRequestList(params?: { status?: MaintenanceRequest['Status'];
     queryKey: ['requests', params],
     queryFn: async () => {
       const search = new URLSearchParams();
-      if (params?.status) search.set('$filter', `status eq '${params.status}'`);
+      if (params?.status) search.set('$filter', `Status eq '${params.status}'`);
       if (params?.search) search.set('$search', params.search);
       search.set('$orderby', 'ChangedAt desc');
       const data = await apiFetch<unknown>(`/api/sap/MaintenanceRequest?${search}`);
@@ -3934,7 +3934,7 @@ export function useOrderList(params?: { assignedTo?: string }) {
     queryKey: ['orders', params],
     queryFn: async () => {
       const search = new URLSearchParams();
-      if (params?.assignedTo) search.set('$filter', `assigned_to eq '${params.assignedTo}'`);
+      if (params?.assignedTo) search.set('$filter', `AssignedTo eq '${params.assignedTo}'`);
       search.set('$orderby', 'ChangedAt desc');
       const data = await apiFetch<unknown>(`/api/sap/WorkOrder?${search}`);
       return listSchema.parse(data).value;
