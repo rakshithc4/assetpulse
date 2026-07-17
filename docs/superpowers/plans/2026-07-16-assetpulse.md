@@ -3048,10 +3048,12 @@ git commit -m "feat(4.4): NextAuth demo-persona credentials provider with role c
 
 ### Task 4.5: MSW fixtures + handlers (mock mode)
 
+> **Correction found during execution:** `vitest.setup.ts` (Task 4.1) imports `./src/mocks/server` unconditionally as a Vitest setup file — Vite must resolve it before *any* test in the suite can run, not just type-check it. That means no vitest test at all could run between Task 4.1 and this task, blocking 4.2/4.3/4.4's own TDD cycles. Fixed out-of-band, right after Task 3.2: `web/src/mocks/server.ts` was created early with an empty `setupServer()` (real MSW API, no fake stub), just enough to unblock `vitest.setup.ts`. This task now **modifies** that file to pass in the real `handlers` instead of creating it fresh.
+
 **Files:**
 - Create: `web/src/mocks/fixtures.ts`
 - Create: `web/src/mocks/handlers.ts`
-- Create: `web/src/mocks/server.ts`
+- Modify: `web/src/mocks/server.ts` (created early as `setupServer()` with no handlers — see correction note above; now becomes `setupServer(...handlers)`)
 - Create: `web/src/mocks/browser.ts`
 - Create: `web/src/mocks/mock-mode-init.tsx`
 - Modify: `web/src/app/layout.tsx` (Task 4.1) — mount `<MockModeInit />`
@@ -3345,7 +3347,7 @@ export const handlers = [
 ];
 ```
 
-- [ ] **Step 3: Write `web/src/mocks/server.ts` and `web/src/mocks/browser.ts`**
+- [ ] **Step 3: Update `web/src/mocks/server.ts` (now with real handlers) and write `web/src/mocks/browser.ts`**
 
 ```typescript
 // web/src/mocks/server.ts
