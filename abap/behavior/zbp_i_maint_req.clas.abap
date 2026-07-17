@@ -14,6 +14,9 @@ CLASS lhc_maintrequest DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS converttoworkorder FOR MODIFY
       IMPORTING keys FOR ACTION MaintRequest~converttoworkorder RESULT result.
+
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      IMPORTING keys REQUEST requested_features FOR MaintRequest RESULT result.
 ENDCLASS.
 
 CLASS lhc_maintrequest IMPLEMENTATION.
@@ -159,6 +162,19 @@ CLASS lhc_maintrequest IMPLEMENTATION.
       RESULT DATA(updated).
 
     result = VALUE #( FOR upd IN updated ( %tky = upd-%tky %param = upd ) ).
+  ENDMETHOD.
+
+  METHOD get_instance_features.
+    READ ENTITIES OF zi_maint_req IN LOCAL MODE
+      ENTITY MaintRequest
+        FIELDS ( Status ) WITH CORRESPONDING #( keys )
+      RESULT DATA(requests).
+
+    result = VALUE #( FOR req IN requests (
+      %tky                      = req-%tky
+      %action-RejectRequest      = COND #( WHEN req-Status = 'REPORTED' THEN if_abap_behv=>fc-o-enabled ELSE if_abap_behv=>fc-o-disabled )
+      %action-ConvertToWorkOrder = COND #( WHEN req-Status = 'REPORTED' THEN if_abap_behv=>fc-o-enabled ELSE if_abap_behv=>fc-o-disabled )
+    ) ).
   ENDMETHOD.
 
 ENDCLASS.
