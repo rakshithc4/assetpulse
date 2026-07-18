@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import CORS_ORIGIN
+from app.routes import router
 
 app = FastAPI(title="AssetPulse Analytics")
 app.add_middleware(
@@ -10,3 +11,4 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+app.include_router(router)
