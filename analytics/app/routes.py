@@ -7,6 +7,7 @@ from app.kpi import (
     backlog_aging,
     downtime_grouped,
     equipment_availability_pct,
+    frequency_by_type,
     mttr_hours,
     open_orders_count,
     open_requests_by_severity,
@@ -44,3 +45,11 @@ async def backlog_aging_route():
     now = datetime.now(UTC)
     requests = await load_requests()
     return {"buckets": backlog_aging(requests, now)}
+
+
+@router.get("/frequency")
+async def frequency():
+    now = datetime.now(UTC)
+    requests = await load_requests()
+    equipment = await load_equipment()
+    return {"data": frequency_by_type(requests, equipment, now)}

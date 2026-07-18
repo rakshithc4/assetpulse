@@ -49,3 +49,14 @@ def test_kpi_backlog_aging():
         {"range": "8-30", "count": 1},
         {"range": "30+", "count": 2},
     ]
+
+
+def test_kpi_frequency():
+    response = client.get("/kpi/frequency")
+    assert response.status_code == 200
+    assert response.json()["data"] == [
+        {"equip_type": "CONVEYOR", "count": 1},
+        {"equip_type": "CRUSHER", "count": 2},
+        {"equip_type": "HAUL_TRUCK", "count": 1},
+        {"equip_type": "PUMP", "count": 1},
+    ]
