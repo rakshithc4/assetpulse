@@ -18,3 +18,24 @@ def test_kpi_summary():
     assert body["open_orders"] == 3
     assert body["total_downtime_hours_30d"] == 10.0
     assert body["open_requests_by_severity"] == {"HIGH": 1, "MEDIUM": 1, "CRITICAL": 1, "LOW": 1}
+
+
+def test_kpi_downtime_by_site():
+    response = client.get("/kpi/downtime?by=site")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["by"] == "site"
+    assert body["data"] == [
+        {"group": "Goldfields Site B", "downtime_hours": 10.0},
+        {"group": "Pilbara Site A", "downtime_hours": 10.0},
+    ]
+
+
+def test_kpi_downtime_by_type():
+    response = client.get("/kpi/downtime?by=type")
+    body = response.json()
+    assert body["data"] == [
+        {"group": "CONVEYOR", "downtime_hours": 4.0},
+        {"group": "CRUSHER", "downtime_hours": 6.0},
+        {"group": "PUMP", "downtime_hours": 10.0},
+    ]
