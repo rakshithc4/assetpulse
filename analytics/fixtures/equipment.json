@@ -1,0 +1,7 @@
+[
+  { "EquipId": "1", "EquipTag": "CRU-104", "EquipType": "CRUSHER", "Site": "Pilbara Site A", "OpStatus": "OPERATIONAL" },
+  { "EquipId": "2", "EquipTag": "CNV-22", "EquipType": "CONVEYOR", "Site": "Pilbara Site A", "OpStatus": "MAINTENANCE" },
+  { "EquipId": "3", "EquipTag": "PMP-08", "EquipType": "PUMP", "Site": "Goldfields Site B", "OpStatus": "DOWN" },
+  { "EquipId": "4", "EquipTag": "HTR-15", "EquipType": "HAUL_TRUCK", "Site": "Goldfields Site B", "OpStatus": "OPERATIONAL" },
+  { "EquipId": "5", "EquipTag": "DRL-03", "EquipType": "DRILL", "Site": "Goldfields Site B", "OpStatus": "OPERATIONAL" }
+]
