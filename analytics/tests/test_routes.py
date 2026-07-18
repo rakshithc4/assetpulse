@@ -39,3 +39,13 @@ def test_kpi_downtime_by_type():
         {"group": "CRUSHER", "downtime_hours": 6.0},
         {"group": "PUMP", "downtime_hours": 10.0},
     ]
+
+
+def test_kpi_backlog_aging():
+    response = client.get("/kpi/backlog-aging")
+    assert response.status_code == 200
+    assert response.json()["buckets"] == [
+        {"range": "0-7", "count": 1},
+        {"range": "8-30", "count": 1},
+        {"range": "30+", "count": 2},
+    ]

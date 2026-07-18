@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.data_source import load_equipment, load_orders, load_requests
 from app.kpi import (
+    backlog_aging,
     downtime_grouped,
     equipment_availability_pct,
     mttr_hours,
@@ -36,3 +37,10 @@ async def downtime(by: str = "site"):
     equipment = await load_equipment()
     orders = await load_orders()
     return {"by": by, "data": downtime_grouped(orders, equipment, by, now)}
+
+
+@router.get("/backlog-aging")
+async def backlog_aging_route():
+    now = datetime.now(UTC)
+    requests = await load_requests()
+    return {"buckets": backlog_aging(requests, now)}
