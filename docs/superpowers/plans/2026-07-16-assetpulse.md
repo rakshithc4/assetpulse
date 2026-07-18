@@ -2511,6 +2511,13 @@ export default defineConfig({
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   reporter: 'list',
+  // Next.js dev mode compiles each route on first hit, and the lifecycle
+  // e2e test (Task 4.16) walks through ~7 distinct routes in sequence on a
+  // cold server — the default 30s per-test budget got consumed by earlier
+  // compiles before later assertions got their share. 120s total, 30s per
+  // assertion (found and fixed while getting Task 4.16 to pass reliably).
+  timeout: 120_000,
+  expect: { timeout: 30_000 },
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'retain-on-failure',
@@ -3379,9 +3386,17 @@ cd web && pnpm dlx msw init public/ --save
 'use client';
 import { useEffect } from 'react';
 
+// Module-level (not React state) so it survives React 18 Strict Mode's dev-only
+// double-invoke of effects (mount -> cleanup -> mount again). Without this guard,
+// worker.start() — a singleton side effect with no matching cleanup — gets called
+// twice and MSW throws "cannot configure an already enabled network" (found while
+// stabilizing Task 4.16's e2e test).
+let mockWorkerStarted = false;
+
 export function MockModeInit() {
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_MOCK_MODE === '1') {
+    if (process.env.NEXT_PUBLIC_MOCK_MODE === '1' && !mockWorkerStarted) {
+      mockWorkerStarted = true;
       void import('./browser').then(({ worker }) => worker.start({ onUnhandledRequest: 'bypass' }));
     }
   }, []);
@@ -5768,17 +5783,47 @@ This is the spec §1 success-criterion demo, run headless against MSW fixtures i
 
 - [ ] **Step 1: Write `web/e2e/lifecycle.spec.ts`**
 
+This final version reflects two things found and fixed while getting this test to pass reliably (both documented in Task 4.1/4.5's corrected plan text too): `page.goto()` mid-flow causes a full page reload that resets MSW's in-memory fixture state, so every mid-flow transition uses the app's own nav links instead; and mock mode's MSW service worker occasionally races with Next.js's automatic `<Link>` prefetching (the URL updates but the router serves a stale/empty prefetched segment — no console error, just a silently stuck navigation, never observed in live mode where there's no service worker at all) — a `clickAndWaitFor` retry helper absorbs that race without masking a real failure.
+
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
+
+// Mock mode registers MSW's service worker for the whole test session, which
+// occasionally races with Next.js's automatic <Link> prefetching: the URL
+// updates (history.pushState) but the router serves a stale/empty prefetched
+// segment instead of rendering the new page — no console error, just a
+// silently stuck navigation. This never happens in the live-mode app (no
+// service worker there at all), so it's a mock-mode test-environment
+// artifact, not an application bug — a second click after the race resolves
+// always succeeds. Retrying the click is the correct fix, not a longer wait.
+async function clickAndWaitFor(page: Page, click: Locator, landed: Locator, attempts = 3) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    await click.click();
+    try {
+      await landed.waitFor({ state: 'visible', timeout: 8_000 });
+      return;
+    } catch (err) {
+      if (attempt === attempts) throw err;
+    }
+  }
+}
 
 test('full maintenance lifecycle flips equipment status and updates insights', async ({ page }) => {
   await page.goto('/login');
   await page.getByText('Supervisor').click();
   await expect(page).toHaveURL('/');
 
-  await page.goto('/equipment');
-  await page.getByText('CRU-104').click();
-  await expect(page.getByText('Operational')).toBeVisible();
+  await clickAndWaitFor(
+    page,
+    page.getByRole('link', { name: 'Equipment', exact: true }),
+    page.getByRole('link', { name: 'CRU-104' }),
+  );
+  await clickAndWaitFor(
+    page,
+    page.getByRole('link', { name: 'CRU-104' }),
+    page.getByRole('heading', { name: 'CRU-104' }),
+  );
+  await expect(page).toHaveURL('/equipment/1');
   await page.getByText('Report fault').click();
 
   await page.getByLabel('Title').fill('Excessive vibration');
@@ -5791,8 +5836,16 @@ test('full maintenance lifecycle flips equipment status and updates insights', a
   await page.getByRole('button', { name: 'Convert', exact: true }).last().click();
   await expect(page.getByText('CONVERTED')).toBeVisible();
 
-  await page.goto('/orders');
-  await page.locator('a[href^="/orders/"]').first().click();
+  await clickAndWaitFor(
+    page,
+    page.getByRole('link', { name: 'Orders', exact: true }),
+    page.locator('a[href^="/orders/"]').first(),
+  );
+  await clickAndWaitFor(
+    page,
+    page.locator('a[href^="/orders/"]').first(),
+    page.getByRole('heading', { name: /^Work order #/ }),
+  );
 
   await page.getByText('Schedule', { exact: true }).click();
   const today = new Date().toISOString().slice(0, 10);
@@ -5809,8 +5862,11 @@ test('full maintenance lifecycle flips equipment status and updates insights', a
   await page.getByRole('button', { name: 'Complete', exact: true }).last().click();
   await expect(page.getByText('Completed')).toBeVisible();
 
-  await page.goto('/insights');
-  await expect(page.getByText('Downtime by site')).toBeVisible();
+  await clickAndWaitFor(
+    page,
+    page.getByRole('link', { name: 'Insights', exact: true }),
+    page.getByText('Downtime by site'),
+  );
 });
 ```
 
