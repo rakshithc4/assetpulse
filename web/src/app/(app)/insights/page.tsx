@@ -3,8 +3,20 @@ import type { ReactNode } from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useKpiDowntime, useKpiBacklogAging, useKpiFrequency } from '@/hooks/use-insights';
 import { ErrorState, Skeleton } from '@/components/states';
+import tokens from '../../../../../design/tokens.example.json';
 
-const AGING_COLORS: Record<string, string> = { '0-7': '#4ade80', '8-30': '#facc15', '30+': '#ef4444' };
+// Recharts needs literal color values (SVG props), not Tailwind classes, so these
+// read straight from the same tokens.json every other component consumes via
+// tailwind.config.ts — never hand-picked hex. The aging ramp intentionally reuses
+// the severity ramp per DESIGN_BRIEF.md ("the severity ramp reused for aging buckets").
+const GRID_COLOR = tokens.text.muted;
+const AXIS_COLOR = tokens.text.secondary;
+const TOOLTIP_BG = tokens.surface.raised;
+const AGING_COLORS: Record<string, string> = {
+  '0-7': tokens.severity.low.fg,
+  '8-30': tokens.severity.medium.fg,
+  '30+': tokens.severity.critical.border,
+};
 
 interface QueryLike<T> {
   data?: T;
@@ -41,11 +53,11 @@ export default function InsightsPage() {
         {(data) => (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={data.data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a30" />
-              <XAxis dataKey="group" stroke="#a1a1aa" fontSize={12} />
-              <YAxis stroke="#a1a1aa" fontSize={12} />
-              <Tooltip contentStyle={{ background: '#1c1c22', border: '1px solid #2a2a30' }} />
-              <Bar dataKey="downtime_hours" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+              <XAxis dataKey="group" stroke={AXIS_COLOR} fontSize={12} />
+              <YAxis stroke={AXIS_COLOR} fontSize={12} />
+              <Tooltip contentStyle={{ background: TOOLTIP_BG, border: `1px solid ${GRID_COLOR}` }} />
+              <Bar dataKey="downtime_hours" fill={tokens.lifecycle.scheduled.border} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -55,11 +67,11 @@ export default function InsightsPage() {
         {(data) => (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={data.data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a30" />
-              <XAxis dataKey="group" stroke="#a1a1aa" fontSize={12} />
-              <YAxis stroke="#a1a1aa" fontSize={12} />
-              <Tooltip contentStyle={{ background: '#1c1c22', border: '1px solid #2a2a30' }} />
-              <Bar dataKey="downtime_hours" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+              <XAxis dataKey="group" stroke={AXIS_COLOR} fontSize={12} />
+              <YAxis stroke={AXIS_COLOR} fontSize={12} />
+              <Tooltip contentStyle={{ background: TOOLTIP_BG, border: `1px solid ${GRID_COLOR}` }} />
+              <Bar dataKey="downtime_hours" fill={tokens.lifecycle.in_progress.border} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -69,13 +81,13 @@ export default function InsightsPage() {
         {(data) => (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={data.buckets}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a30" />
-              <XAxis dataKey="range" stroke="#a1a1aa" fontSize={12} />
-              <YAxis stroke="#a1a1aa" fontSize={12} />
-              <Tooltip contentStyle={{ background: '#1c1c22', border: '1px solid #2a2a30' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+              <XAxis dataKey="range" stroke={AXIS_COLOR} fontSize={12} />
+              <YAxis stroke={AXIS_COLOR} fontSize={12} />
+              <Tooltip contentStyle={{ background: TOOLTIP_BG, border: `1px solid ${GRID_COLOR}` }} />
               <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                 {data.buckets.map((bucket) => (
-                  <Cell key={bucket.range} fill={AGING_COLORS[bucket.range] ?? '#3b82f6'} />
+                  <Cell key={bucket.range} fill={AGING_COLORS[bucket.range] ?? tokens.lifecycle.scheduled.border} />
                 ))}
               </Bar>
             </BarChart>
@@ -87,11 +99,11 @@ export default function InsightsPage() {
         {(data) => (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={data.data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a30" />
-              <XAxis dataKey="equip_type" stroke="#a1a1aa" fontSize={12} />
-              <YAxis stroke="#a1a1aa" fontSize={12} />
-              <Tooltip contentStyle={{ background: '#1c1c22', border: '1px solid #2a2a30' }} />
-              <Bar dataKey="count" fill="#facc15" radius={[4, 4, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+              <XAxis dataKey="equip_type" stroke={AXIS_COLOR} fontSize={12} />
+              <YAxis stroke={AXIS_COLOR} fontSize={12} />
+              <Tooltip contentStyle={{ background: TOOLTIP_BG, border: `1px solid ${GRID_COLOR}` }} />
+              <Bar dataKey="count" fill={tokens.severity.medium.fg} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
