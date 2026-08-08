@@ -1,6 +1,6 @@
 # AssetPulse
 
-[![CI](https://github.com/OWNER/assetpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/assetpulse/actions/workflows/ci.yml)
+(https://github.com/OWNER/assetpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/assetpulse/actions/workflows/ci.yml)
 
 > 🧑 Replace `OWNER` above with your actual GitHub username/org once the repo is pushed.
 
