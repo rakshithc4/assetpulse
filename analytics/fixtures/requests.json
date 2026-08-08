@@ -1,0 +1,8 @@
+[
+  { "ReqId": "1", "EquipId": "1", "Severity": "HIGH", "Status": "REPORTED", "CreatedAt": "2026-07-15T00:00:00Z" },
+  { "ReqId": "2", "EquipId": "2", "Severity": "MEDIUM", "Status": "REPORTED", "CreatedAt": "2026-07-05T00:00:00Z" },
+  { "ReqId": "3", "EquipId": "3", "Severity": "CRITICAL", "Status": "REPORTED", "CreatedAt": "2026-06-01T00:00:00Z" },
+  { "ReqId": "4", "EquipId": "1", "Severity": "LOW", "Status": "CONVERTED", "CreatedAt": "2026-07-01T00:00:00Z" },
+  { "ReqId": "5", "EquipId": "4", "Severity": "MEDIUM", "Status": "REJECTED", "CreatedAt": "2026-05-01T00:00:00Z" },
+  { "ReqId": "6", "EquipId": "5", "Severity": "LOW", "Status": "REPORTED", "CreatedAt": "2026-04-01T00:00:00Z" }
+]

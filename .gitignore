@@ -1,0 +1,28 @@
+# env
+.env
+.env.local
+
+# node
+node_modules/
+web/node_modules/
+web/.next/
+web/dist/
+web/coverage/
+web/playwright-report/
+web/test-results/
+web/*.tsbuildinfo
+web/next-env.d.ts
+
+# python
+analytics/__pycache__/
+analytics/.pytest_cache/
+analytics/.ruff_cache/
+analytics/venv/
+analytics/*.egg-info/
+**/__pycache__/
+
+# os
+.DS_Store
+
+# worktrees (safety net if git worktree fallback is ever used)
+.worktrees/

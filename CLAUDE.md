@@ -51,7 +51,7 @@ scripts:     node web/scripts/sap-smoke.mjs | node web/scripts/seed.mjs
 - Cross-BO EML (StartWork/CompleteWork touching ZI_EQUIPMENT) runs IN LOCAL MODE inside the work-order behavior pool.
 
 ## Status (update as phases land)
-- [ ] Plan written via writing-plans
+- [x] Plan written via writing-plans — `docs/superpowers/plans/2026-07-16-assetpulse.md`
 - [ ] ABAP active + abapGit linked + ABAP Unit green + ATC clean
 - [ ] Binding published + comm user + smoke green
 - [ ] Design tokens + screens approved
