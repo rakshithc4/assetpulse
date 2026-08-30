@@ -1,4 +1,3 @@
-@AbapCatalog.sqlViewName: 'ZIVMAINTREQ'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Maintenance Request'
 @Metadata.allowExtensions: true

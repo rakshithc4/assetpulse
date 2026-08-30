@@ -1,4 +1,3 @@
-@AbapCatalog.sqlViewName: 'ZIVAPEQUIPMENT'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Equipment'
 @Metadata.allowExtensions: true

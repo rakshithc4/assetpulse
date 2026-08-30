@@ -1,4 +1,3 @@
-@AbapCatalog.sqlViewName: 'ZIVWORKORDER'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Work Order'
 @Metadata.allowExtensions: true

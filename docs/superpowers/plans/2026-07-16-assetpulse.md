@@ -404,7 +404,9 @@ git commit -m "feat(1.2): abstract entities for RAP action parameters"
 
 ### Task 1.3: CDS interface views (root view entities)
 
-> **Correction found during the ADT checkpoint:** `ZI_EQUIPMENT` collided with another user's object in the shared BTP trial namespace and couldn't be created. Renamed to `ZI_AP_EQUIPMENT` everywhere it's referenced (this file, all associations to it, the `ZC_Equipment` projection, and the equipment/work-order/maint-request behavior implementation classes' EML) — every other object name is unaffected, including the underlying table `ZEQUIPMENT`, the projection `ZC_EQUIPMENT`, and the behavior implementation class `ZBP_I_EQUIPMENT` (none of those collided).
+> **Corrections found during the ADT checkpoint:**
+> 1. `ZI_EQUIPMENT` collided with another user's object in the shared BTP trial namespace and couldn't be created. Renamed to `ZI_AP_EQUIPMENT` everywhere it's referenced (this file, all associations to it, the `ZC_Equipment` projection, and the equipment/work-order/maint-request behavior implementation classes' EML) — every other object name is unaffected, including the underlying table `ZEQUIPMENT`, the projection `ZC_EQUIPMENT`, and the behavior implementation class `ZBP_I_EQUIPMENT` (none of those collided).
+> 2. `@AbapCatalog.sqlViewName` is a classic-CDS-only annotation — it's invalid on `define root view entity` (View Entities) in ABAP Cloud and blocked activation. Removed from all three interface root view entities below (it was never valid here; RAP manages the underlying SQL representation itself). The projections (`ZC_*`) and abstract entities (`ZA_*`) were audited too and never had this annotation, so no change was needed there.
 
 **Files:**
 - Create: `abap/cds/zi_ap_equipment.ddls.abap`
@@ -418,7 +420,6 @@ git commit -m "feat(1.2): abstract entities for RAP action parameters"
 - [ ] **Step 1: Write `abap/cds/zi_ap_equipment.ddls.abap`**
 
 ```abap
-@AbapCatalog.sqlViewName: 'ZIVAPEQUIPMENT'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Equipment'
 @Metadata.allowExtensions: true
@@ -445,7 +446,6 @@ define root view entity ZI_AP_Equipment
 - [ ] **Step 2: Write `abap/cds/zi_maint_req.ddls.abap`**
 
 ```abap
-@AbapCatalog.sqlViewName: 'ZIVMAINTREQ'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Maintenance Request'
 @Metadata.allowExtensions: true
@@ -472,7 +472,6 @@ define root view entity ZI_Maint_Req
 - [ ] **Step 3: Write `abap/cds/zi_work_order.ddls.abap`**
 
 ```abap
-@AbapCatalog.sqlViewName: 'ZIVWORKORDER'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Work Order'
 @Metadata.allowExtensions: true
