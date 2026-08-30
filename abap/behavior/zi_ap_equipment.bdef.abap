@@ -1,7 +1,7 @@
 managed implementation in class zbp_i_equipment unique;
 strict ( 2 );
 
-define behavior for ZI_Equipment alias Equipment
+define behavior for ZI_AP_Equipment alias Equipment
 persistent table zequipment
 etag master ChangedAt
 lock master

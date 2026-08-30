@@ -93,12 +93,12 @@ CLASS lhc_workorder IMPLEMENTATION.
           Status    = 'IN_PROGRESS'
           StartedAt = utclong_current( ) ) ).
 
-    DATA equip_updates TYPE TABLE FOR UPDATE zi_equipment\\Equipment.
+    DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
     LOOP AT orders INTO DATA(order).
       APPEND VALUE #( EquipId = order-EquipId OpStatus = 'MAINTENANCE' ) TO equip_updates.
     ENDLOOP.
 
-    MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+    MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         UPDATE FIELDS ( OpStatus )
         WITH equip_updates.
@@ -138,7 +138,7 @@ CLASS lhc_workorder IMPLEMENTATION.
             CompletionNotes  = key-%param-CompletionNotes
             DowntimeHours    = key-%param-DowntimeHours ) ).
 
-      DATA equip_updates TYPE TABLE FOR UPDATE zi_equipment\\Equipment.
+      DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
       LOOP AT orders INTO DATA(order).
         READ TABLE valid_keys WITH KEY %tky = order-%tky TRANSPORTING NO FIELDS.
         CHECK sy-subrc = 0.
@@ -146,7 +146,7 @@ CLASS lhc_workorder IMPLEMENTATION.
       ENDLOOP.
 
       IF equip_updates IS NOT INITIAL.
-        MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+        MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
           ENTITY Equipment
             UPDATE FIELDS ( OpStatus )
             WITH equip_updates.

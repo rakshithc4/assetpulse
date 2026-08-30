@@ -17,6 +17,6 @@ define root view entity ZI_Maint_Req
       created_at  as CreatedAt,
       changed_at  as ChangedAt,
 
-      _Equipment : association [1..1] to ZI_Equipment  on $projection.EquipId = _Equipment.EquipId,
+      _Equipment : association [1..1] to ZI_AP_Equipment  on $projection.EquipId = _Equipment.EquipId,
       _WorkOrder : association [0..1] to ZI_Work_Order on $projection.ReqId = _WorkOrder.ReqId
 }

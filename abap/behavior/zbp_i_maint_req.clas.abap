@@ -34,14 +34,14 @@ CLASS lhc_maintrequest IMPLEMENTATION.
         FIELDS ( Severity EquipId ) WITH CORRESPONDING #( keys )
       RESULT DATA(requests).
 
-    DATA equip_updates TYPE TABLE FOR UPDATE zi_equipment\\Equipment.
+    DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
 
     LOOP AT requests INTO DATA(req) WHERE Severity = 'CRITICAL'.
       APPEND VALUE #( EquipId = req-EquipId OpStatus = 'DOWN' ) TO equip_updates.
     ENDLOOP.
 
     IF equip_updates IS NOT INITIAL.
-      MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+      MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
         ENTITY Equipment
           UPDATE FIELDS ( OpStatus )
           WITH equip_updates.
@@ -100,7 +100,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
             Status     = 'REJECTED'
             RejectNote = key-%param-Note ) ).
 
-      DATA equip_updates TYPE TABLE FOR UPDATE zi_equipment\\Equipment.
+      DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
       LOOP AT requests INTO DATA(req).
         READ TABLE valid_keys WITH KEY %tky = req-%tky TRANSPORTING NO FIELDS.
         CHECK sy-subrc = 0 AND req-Severity = 'CRITICAL'.
@@ -108,7 +108,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
       ENDLOOP.
 
       IF equip_updates IS NOT INITIAL.
-        MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+        MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
           ENTITY Equipment
             UPDATE FIELDS ( OpStatus )
             WITH equip_updates.

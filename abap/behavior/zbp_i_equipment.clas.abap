@@ -10,14 +10,14 @@ ENDCLASS.
 CLASS lhc_equipment IMPLEMENTATION.
 
   METHOD setinitialstatus.
-    MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+    MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         UPDATE FIELDS ( op_status )
         WITH VALUE #( FOR key IN keys ( %tky = key-%tky OpStatus = 'OPERATIONAL' ) ).
   ENDMETHOD.
 
   METHOD validateequipmentfields.
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( EquipType Criticality Site Name ) WITH CORRESPONDING #( keys )
       RESULT DATA(equipment).

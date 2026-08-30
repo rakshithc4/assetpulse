@@ -12,12 +12,12 @@ Each `[ ]` becomes `[x]` as you activate it; paste the ADT activation log for ea
 - [ ] ZA_REJECT, ZA_SCHEDULE, ZA_COMPLETE, ZA_CANCEL, ZA_CONVERT (abap/cds/za_*.ddls.abap)
 
 ## Group 3 — CDS interface views (root view entities)
-- [ ] ZI_EQUIPMENT  (abap/cds/zi_equipment.ddls.abap)
+- [ ] ZI_AP_EQUIPMENT  (abap/cds/zi_ap_equipment.ddls.abap) — renamed from ZI_EQUIPMENT: that name collided with another user's object in the shared BTP trial namespace
 - [ ] ZI_MAINT_REQ  (abap/cds/zi_maint_req.ddls.abap)
 - [ ] ZI_WORK_ORDER (abap/cds/zi_work_order.ddls.abap)
 
 ## Group 4 — Behavior definitions (interface layer)
-- [ ] ZI_EQUIPMENT.bdef   (abap/behavior/zi_equipment.bdef.abap)
+- [ ] ZI_AP_EQUIPMENT.bdef   (abap/behavior/zi_ap_equipment.bdef.abap)
 - [ ] ZI_MAINT_REQ.bdef   (abap/behavior/zi_maint_req.bdef.abap)
 - [ ] ZI_WORK_ORDER.bdef  (abap/behavior/zi_work_order.bdef.abap)
 

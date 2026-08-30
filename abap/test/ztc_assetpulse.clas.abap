@@ -52,7 +52,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
 
   METHOD class_setup.
     environment = cl_abap_behv_test_environment=>create(
-      i_for_entities = VALUE #( ( name = 'ZI_EQUIPMENT' )
+      i_for_entities = VALUE #( ( name = 'ZI_AP_EQUIPMENT' )
                                  ( name = 'ZI_MAINT_REQ' )
                                  ( name = 'ZI_WORK_ORDER' ) ) ).
   ENDMETHOD.
@@ -67,7 +67,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
 
   METHOD create_equipment.
     equip_id = cl_system_uuid=>create_uuid_x16_static( ).
-    MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+    MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         CREATE FIELDS ( EquipTag Name EquipType Site Criticality )
         WITH VALUE #( ( %cid = 'EQ1' %key-EquipId = equip_id
@@ -129,7 +129,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
 
   METHOD create_equipment_sets_operational.
     DATA(equip_id) = create_equipment( ).
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(result).
@@ -139,7 +139,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
   METHOD critical_request_downs_equipment.
     DATA(equip_id) = create_equipment( ).
     create_request( equip_id = equip_id severity = 'CRITICAL' ).
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(result).
@@ -170,7 +170,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
       REPORTED DATA(reported).
     COMMIT ENTITIES.
 
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(result).
@@ -247,7 +247,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
     schedule_order( order_id ).
     start_order( order_id ).
 
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(result).
@@ -288,7 +288,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
       REPORTED DATA(reported).
     COMMIT ENTITIES.
 
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(equip_result).

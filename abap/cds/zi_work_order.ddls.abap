@@ -22,5 +22,5 @@ define root view entity ZI_Work_Order
       changed_at       as ChangedAt,
 
       _Request   : association [1..1] to ZI_Maint_Req on $projection.ReqId   = _Request.ReqId,
-      _Equipment : association [1..1] to ZI_Equipment on $projection.EquipId = _Equipment.EquipId
+      _Equipment : association [1..1] to ZI_AP_Equipment on $projection.EquipId = _Equipment.EquipId
 }

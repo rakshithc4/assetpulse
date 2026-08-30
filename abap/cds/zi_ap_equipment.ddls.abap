@@ -1,9 +1,9 @@
-@AbapCatalog.sqlViewName: 'ZIVEQUIPMENT'
+@AbapCatalog.sqlViewName: 'ZIVAPEQUIPMENT'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Equipment'
 @Metadata.allowExtensions: true
 @ObjectModel.usageType:{ serviceQuality: #X, sizeCategory: #S, dataClass: #MIXED }
-define root view entity ZI_Equipment
+define root view entity ZI_AP_Equipment
   as select from zequipment
 {
   key equip_id     as EquipId,

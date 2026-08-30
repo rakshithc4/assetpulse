@@ -5,7 +5,7 @@
 @Search.searchable: true
 define root view entity ZC_Equipment
   provider contract transactional_query
-  as projection on ZI_Equipment
+  as projection on ZI_AP_Equipment
 {
   key EquipId,
       @Search.defaultSearchElement: true

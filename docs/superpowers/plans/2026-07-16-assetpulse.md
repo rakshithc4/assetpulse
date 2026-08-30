@@ -221,12 +221,12 @@ Each `[ ]` becomes `[x]` as you activate it; paste the ADT activation log for ea
 - [ ] ZA_REJECT, ZA_SCHEDULE, ZA_COMPLETE, ZA_CANCEL, ZA_CONVERT (abap/cds/za_*.ddls.abap)
 
 ## Group 3 — CDS interface views (root view entities)
-- [ ] ZI_EQUIPMENT  (abap/cds/zi_equipment.ddls.abap)
+- [ ] ZI_AP_EQUIPMENT  (abap/cds/zi_ap_equipment.ddls.abap)
 - [ ] ZI_MAINT_REQ  (abap/cds/zi_maint_req.ddls.abap)
 - [ ] ZI_WORK_ORDER (abap/cds/zi_work_order.ddls.abap)
 
 ## Group 4 — Behavior definitions (interface layer)
-- [ ] ZI_EQUIPMENT.bdef   (abap/behavior/zi_equipment.bdef.abap)
+- [ ] ZI_AP_EQUIPMENT.bdef   (abap/behavior/zi_ap_equipment.bdef.abap)
 - [ ] ZI_MAINT_REQ.bdef   (abap/behavior/zi_maint_req.bdef.abap)
 - [ ] ZI_WORK_ORDER.bdef  (abap/behavior/zi_work_order.bdef.abap)
 
@@ -404,24 +404,26 @@ git commit -m "feat(1.2): abstract entities for RAP action parameters"
 
 ### Task 1.3: CDS interface views (root view entities)
 
+> **Correction found during the ADT checkpoint:** `ZI_EQUIPMENT` collided with another user's object in the shared BTP trial namespace and couldn't be created. Renamed to `ZI_AP_EQUIPMENT` everywhere it's referenced (this file, all associations to it, the `ZC_Equipment` projection, and the equipment/work-order/maint-request behavior implementation classes' EML) — every other object name is unaffected, including the underlying table `ZEQUIPMENT`, the projection `ZC_EQUIPMENT`, and the behavior implementation class `ZBP_I_EQUIPMENT` (none of those collided).
+
 **Files:**
-- Create: `abap/cds/zi_equipment.ddls.abap`
+- Create: `abap/cds/zi_ap_equipment.ddls.abap`
 - Create: `abap/cds/zi_maint_req.ddls.abap`
 - Create: `abap/cds/zi_work_order.ddls.abap`
 
 **Interfaces:**
 - Consumes: tables `zequipment`, `zmaint_req`, `zwork_order` (Task 1.1).
-- Produces: `ZI_Equipment` (elements `EquipId, EquipTag, Name, EquipType, Site, Criticality, OpStatus, InstalledOn, CreatedAt, ChangedAt`; associations `_MaintReq`, `_WorkOrder`), `ZI_Maint_Req` (elements `ReqId, EquipId, Title, Description, Severity, Status, ReportedBy, RejectNote, CreatedAt, ChangedAt`; association `_Equipment`), `ZI_Work_Order` (elements `OrderId, ReqId, EquipId, Priority, Status, AssignedTo, ScheduledDate, StartedAt, CompletedAt, DowntimeHours, CompletionNotes, CancelNote, CreatedAt, ChangedAt`; associations `_Request`, `_Equipment`). Task 1.4 behavior definitions and Task 1.6 CDS projections consume these exact names.
+- Produces: `ZI_AP_Equipment` (elements `EquipId, EquipTag, Name, EquipType, Site, Criticality, OpStatus, InstalledOn, CreatedAt, ChangedAt`; associations `_MaintReq`, `_WorkOrder`), `ZI_Maint_Req` (elements `ReqId, EquipId, Title, Description, Severity, Status, ReportedBy, RejectNote, CreatedAt, ChangedAt`; association `_Equipment`), `ZI_Work_Order` (elements `OrderId, ReqId, EquipId, Priority, Status, AssignedTo, ScheduledDate, StartedAt, CompletedAt, DowntimeHours, CompletionNotes, CancelNote, CreatedAt, ChangedAt`; associations `_Request`, `_Equipment`). Task 1.4 behavior definitions and Task 1.6 CDS projections consume these exact names.
 
-- [ ] **Step 1: Write `abap/cds/zi_equipment.ddls.abap`**
+- [ ] **Step 1: Write `abap/cds/zi_ap_equipment.ddls.abap`**
 
 ```abap
-@AbapCatalog.sqlViewName: 'ZIVEQUIPMENT'
+@AbapCatalog.sqlViewName: 'ZIVAPEQUIPMENT'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Equipment'
 @Metadata.allowExtensions: true
 @ObjectModel.usageType:{ serviceQuality: #X, sizeCategory: #S, dataClass: #MIXED }
-define root view entity ZI_Equipment
+define root view entity ZI_AP_Equipment
   as select from zequipment
 {
   key equip_id     as EquipId,
@@ -462,7 +464,7 @@ define root view entity ZI_Maint_Req
       created_at  as CreatedAt,
       changed_at  as ChangedAt,
 
-      _Equipment : association [1..1] to ZI_Equipment  on $projection.EquipId = _Equipment.EquipId,
+      _Equipment : association [1..1] to ZI_AP_Equipment  on $projection.EquipId = _Equipment.EquipId,
       _WorkOrder : association [0..1] to ZI_Work_Order on $projection.ReqId = _WorkOrder.ReqId
 }
 ```
@@ -494,35 +496,35 @@ define root view entity ZI_Work_Order
       changed_at       as ChangedAt,
 
       _Request   : association [1..1] to ZI_Maint_Req on $projection.ReqId   = _Request.ReqId,
-      _Equipment : association [1..1] to ZI_Equipment on $projection.EquipId = _Equipment.EquipId
+      _Equipment : association [1..1] to ZI_AP_Equipment on $projection.EquipId = _Equipment.EquipId
 }
 ```
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add abap/cds/zi_equipment.ddls.abap abap/cds/zi_maint_req.ddls.abap abap/cds/zi_work_order.ddls.abap
+git add abap/cds/zi_ap_equipment.ddls.abap abap/cds/zi_maint_req.ddls.abap abap/cds/zi_work_order.ddls.abap
 git commit -m "feat(1.3): CDS interface root view entities with associations"
 ```
 
 ### Task 1.4: Behavior definitions (interface layer, all three roots)
 
 **Files:**
-- Create: `abap/behavior/zi_equipment.bdef.abap`
+- Create: `abap/behavior/zi_ap_equipment.bdef.abap`
 - Create: `abap/behavior/zi_maint_req.bdef.abap`
 - Create: `abap/behavior/zi_work_order.bdef.abap`
 
 **Interfaces:**
-- Consumes: `ZI_Equipment`, `ZI_Maint_Req`, `ZI_Work_Order` (Task 1.3); `ZA_Reject`, `ZA_Schedule`, `ZA_Complete`, `ZA_Cancel`, `ZA_Convert` (Task 1.2).
-- Produces: declared actions `RejectRequest`, `ConvertToWorkOrder` (on `ZI_Maint_Req`); `Schedule`, `StartWork`, `CompleteWork`, `CancelOrder` (on `ZI_Work_Order`); determinations `SetInitialStatus` (all three roots) and `EscalateCriticalToDown` (`ZI_Maint_Req`); validations `ValidateEquipmentFields` (`ZI_Equipment`), `ValidateRequestFields` (`ZI_Maint_Req`), `ValidateOrderFields` (`ZI_Work_Order`). Task 1.5–1.7 implementation classes implement exactly these method names.
+- Consumes: `ZI_AP_Equipment`, `ZI_Maint_Req`, `ZI_Work_Order` (Task 1.3); `ZA_Reject`, `ZA_Schedule`, `ZA_Complete`, `ZA_Cancel`, `ZA_Convert` (Task 1.2).
+- Produces: declared actions `RejectRequest`, `ConvertToWorkOrder` (on `ZI_Maint_Req`); `Schedule`, `StartWork`, `CompleteWork`, `CancelOrder` (on `ZI_Work_Order`); determinations `SetInitialStatus` (all three roots) and `EscalateCriticalToDown` (`ZI_Maint_Req`); validations `ValidateEquipmentFields` (`ZI_AP_Equipment`), `ValidateRequestFields` (`ZI_Maint_Req`), `ValidateOrderFields` (`ZI_Work_Order`). Task 1.5–1.7 implementation classes implement exactly these method names.
 
-- [ ] **Step 1: Write `abap/behavior/zi_equipment.bdef.abap`**
+- [ ] **Step 1: Write `abap/behavior/zi_ap_equipment.bdef.abap`**
 
 ```abap
 managed implementation in class zbp_i_equipment unique;
 strict ( 2 );
 
-define behavior for ZI_Equipment alias Equipment
+define behavior for ZI_AP_Equipment alias Equipment
 persistent table zequipment
 etag master ChangedAt
 lock master
@@ -647,7 +649,7 @@ Note: `ZWORK_ORDER`'s create is declared `internal` — EML inside behavior pool
 - [ ] **Step 4: Commit**
 
 ```bash
-git add abap/behavior/zi_equipment.bdef.abap abap/behavior/zi_maint_req.bdef.abap abap/behavior/zi_work_order.bdef.abap
+git add abap/behavior/zi_ap_equipment.bdef.abap abap/behavior/zi_maint_req.bdef.abap abap/behavior/zi_work_order.bdef.abap
 git commit -m "feat(1.4): behavior definitions — actions, determinations, validations for all three roots"
 ```
 
@@ -747,14 +749,14 @@ ENDCLASS.
 CLASS lhc_equipment IMPLEMENTATION.
 
   METHOD setinitialstatus.
-    MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+    MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         UPDATE FIELDS ( op_status )
         WITH VALUE #( FOR key IN keys ( %tky = key-%tky OpStatus = 'OPERATIONAL' ) ).
   ENDMETHOD.
 
   METHOD validateequipmentfields.
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( EquipType Criticality Site Name ) WITH CORRESPONDING #( keys )
       RESULT DATA(equipment).
@@ -854,14 +856,14 @@ CLASS lhc_maintrequest IMPLEMENTATION.
         FIELDS ( Severity EquipId ) WITH CORRESPONDING #( keys )
       RESULT DATA(requests).
 
-    DATA equip_updates TYPE TABLE FOR UPDATE zi_equipment\\Equipment.
+    DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
 
     LOOP AT requests INTO DATA(req) WHERE Severity = 'CRITICAL'.
       APPEND VALUE #( EquipId = req-EquipId OpStatus = 'DOWN' ) TO equip_updates.
     ENDLOOP.
 
     IF equip_updates IS NOT INITIAL.
-      MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+      MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
         ENTITY Equipment
           UPDATE FIELDS ( OpStatus )
           WITH equip_updates.
@@ -920,7 +922,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
             Status     = 'REJECTED'
             RejectNote = key-%param-Note ) ).
 
-      DATA equip_updates TYPE TABLE FOR UPDATE zi_equipment\\Equipment.
+      DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
       LOOP AT requests INTO DATA(req).
         READ TABLE valid_keys WITH KEY %tky = req-%tky TRANSPORTING NO FIELDS.
         CHECK sy-subrc = 0 AND req-Severity = 'CRITICAL'.
@@ -928,7 +930,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
       ENDLOOP.
 
       IF equip_updates IS NOT INITIAL.
-        MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+        MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
           ENTITY Equipment
             UPDATE FIELDS ( OpStatus )
             WITH equip_updates.
@@ -1098,12 +1100,12 @@ CLASS lhc_workorder IMPLEMENTATION.
           Status    = 'IN_PROGRESS'
           StartedAt = utclong_current( ) ) ).
 
-    DATA equip_updates TYPE TABLE FOR UPDATE zi_equipment\\Equipment.
+    DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
     LOOP AT orders INTO DATA(order).
       APPEND VALUE #( EquipId = order-EquipId OpStatus = 'MAINTENANCE' ) TO equip_updates.
     ENDLOOP.
 
-    MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+    MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         UPDATE FIELDS ( OpStatus )
         WITH equip_updates.
@@ -1143,7 +1145,7 @@ CLASS lhc_workorder IMPLEMENTATION.
             CompletionNotes  = key-%param-CompletionNotes
             DowntimeHours    = key-%param-DowntimeHours ) ).
 
-      DATA equip_updates TYPE TABLE FOR UPDATE zi_equipment\\Equipment.
+      DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
       LOOP AT orders INTO DATA(order).
         READ TABLE valid_keys WITH KEY %tky = order-%tky TRANSPORTING NO FIELDS.
         CHECK sy-subrc = 0.
@@ -1151,7 +1153,7 @@ CLASS lhc_workorder IMPLEMENTATION.
       ENDLOOP.
 
       IF equip_updates IS NOT INITIAL.
-        MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+        MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
           ENTITY Equipment
             UPDATE FIELDS ( OpStatus )
             WITH equip_updates.
@@ -1266,7 +1268,7 @@ git commit -m "feat(1.7): work order status machine + cross-BO equipment effects
 - Create: `abap/behavior/zc_equipment.bdef.abap`, `abap/behavior/zc_maint_req.bdef.abap`, `abap/behavior/zc_work_order.bdef.abap`
 
 **Interfaces:**
-- Consumes: `ZI_Equipment`, `ZI_Maint_Req`, `ZI_Work_Order` (Task 1.3); actions/determinations from Task 1.4's bdefs.
+- Consumes: `ZI_AP_Equipment`, `ZI_Maint_Req`, `ZI_Work_Order` (Task 1.3); actions/determinations from Task 1.4's bdefs.
 - Produces: `ZC_Equipment`, `ZC_Maint_Req`, `ZC_Work_Order` — the entities Task 1.9's service definition (Task 1.10) exposes on the OData binding.
 
 - [ ] **Step 1: Write the three projection views**
@@ -1280,7 +1282,7 @@ git commit -m "feat(1.7): work order status machine + cross-BO equipment effects
 @Search.searchable: true
 define root view entity ZC_Equipment
   provider contract transactional_query
-  as projection on ZI_Equipment
+  as projection on ZI_AP_Equipment
 {
   key EquipId,
       @Search.defaultSearchElement: true
@@ -1555,7 +1557,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
 
   METHOD class_setup.
     environment = cl_abap_behv_test_environment=>create(
-      i_for_entities = VALUE #( ( name = 'ZI_EQUIPMENT' )
+      i_for_entities = VALUE #( ( name = 'ZI_AP_EQUIPMENT' )
                                  ( name = 'ZI_MAINT_REQ' )
                                  ( name = 'ZI_WORK_ORDER' ) ) ).
   ENDMETHOD.
@@ -1570,7 +1572,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
 
   METHOD create_equipment.
     equip_id = cl_system_uuid=>create_uuid_x16_static( ).
-    MODIFY ENTITIES OF zi_equipment IN LOCAL MODE
+    MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         CREATE FIELDS ( EquipTag Name EquipType Site Criticality )
         WITH VALUE #( ( %cid = 'EQ1' %key-EquipId = equip_id
@@ -1632,7 +1634,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
 
   METHOD create_equipment_sets_operational.
     DATA(equip_id) = create_equipment( ).
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(result).
@@ -1642,7 +1644,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
   METHOD critical_request_downs_equipment.
     DATA(equip_id) = create_equipment( ).
     create_request( equip_id = equip_id severity = 'CRITICAL' ).
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(result).
@@ -1673,7 +1675,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
       REPORTED DATA(reported).
     COMMIT ENTITIES.
 
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(result).
@@ -1750,7 +1752,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
     schedule_order( order_id ).
     start_order( order_id ).
 
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(result).
@@ -1791,7 +1793,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
       REPORTED DATA(reported).
     COMMIT ENTITIES.
 
-    READ ENTITIES OF zi_equipment IN LOCAL MODE
+    READ ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
         FIELDS ( OpStatus ) WITH VALUE #( ( %key-EquipId = equip_id ) )
       RESULT DATA(equip_result).
