@@ -12,7 +12,7 @@ CLASS lhc_equipment IMPLEMENTATION.
   METHOD setinitialstatus.
     MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
-        UPDATE FIELDS ( op_status )
+        UPDATE FIELDS ( OpStatus )
         WITH VALUE #( FOR key IN keys ( %tky = key-%tky OpStatus = 'OPERATIONAL' ) ).
   ENDMETHOD.
 
@@ -46,7 +46,7 @@ CLASS lhc_equipment IMPLEMENTATION.
         APPEND VALUE #( %tky = equip-%tky ) TO failed-equipment.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'EquipType'
-                                                     field_value = equip-EquipType )
+                                                     field_value = CONV string( equip-EquipType ) )
                          %tky = equip-%tky )
                TO reported-equipment.
       ENDIF.
@@ -55,7 +55,7 @@ CLASS lhc_equipment IMPLEMENTATION.
         APPEND VALUE #( %tky = equip-%tky ) TO failed-equipment.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'Criticality'
-                                                     field_value = equip-Criticality )
+                                                     field_value = CONV string( equip-Criticality ) )
                          %tky = equip-%tky )
                TO reported-equipment.
       ENDIF.

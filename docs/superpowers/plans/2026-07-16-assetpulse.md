@@ -654,7 +654,11 @@ git commit -m "feat(1.4): behavior definitions — actions, determinations, vali
 
 ### Task 1.5: Shared message exception + `ZBP_I_EQUIPMENT` implementation
 
-> **Correction found during the ADT checkpoint:** `zcx_assetpulse` inherited from `CX_ABAP_BEHV`, which doesn't exist — that name was a mix-up with the `IF_ABAP_BEHV_MESSAGE` interface it also implements. The correct standard superclass for a RAP message exception class is `CX_STATIC_CHECK`. Fixed below; audited the rest of the repo for the same mistake — this was the only occurrence.
+> **Corrections found during the ADT checkpoint:**
+> 1. `zcx_assetpulse` inherited from `CX_ABAP_BEHV`, which doesn't exist — that name was a mix-up with the `IF_ABAP_BEHV_MESSAGE` interface it also implements. The correct standard superclass for a RAP message exception class is `CX_STATIC_CHECK`. Fixed below; audited the rest of the repo for the same mistake — this was the only occurrence.
+> 2. The message constants (`field_empty`, `negative_downtime`, `schedule_in_past`, `invalid_domain_value`) were missing `attr2`/`attr3`/`attr4`, needed to match `if_t100_message=>t100key`'s structure — caused `<deep>` type mismatch errors everywhere `textid` was used. Fixed by padding every constant to all six fields below.
+> 3. `zbp_i_equipment.clas.abap`'s `setinitialstatus` used the raw DB column name (`op_status`) in `UPDATE FIELDS(...)` instead of the CDS view's alias (`OpStatus`) — EML must reference the projected field, not the underlying column. Fixed below, and the same pattern was found (and fixed) in `zbp_i_maint_req.clas.abap`'s `setinitialstatus` too (Task 1.6).
+> 4. `zbp_i_equipment.clas.abap` passed fixed-length `char` fields (`equip-EquipType`, `equip-Criticality`) directly into `zcx_assetpulse`'s `field_value` parameter, which is typed `string` — fixed by wrapping with `CONV string(...)`. The same pattern was found (and fixed) in `zbp_i_maint_req.clas.abap` (`req-Severity`, Task 1.6) and `zbp_i_work_order.clas.abap` (`order-Priority`, Task 1.7).
 
 **Files:**
 - Create: `abap/behavior/zcx_assetpulse.clas.abap`
@@ -691,23 +695,36 @@ CLASS zcx_assetpulse DEFINITION
 
     CONSTANTS:
       BEGIN OF field_empty,
-        msgid TYPE symsgid VALUE 'ZASSETPULSE',
-        msgno TYPE symsgno VALUE '001',
+        msgid TYPE symsgid      VALUE 'ZASSETPULSE',
+        msgno TYPE symsgno      VALUE '001',
         attr1 TYPE scx_attrname VALUE 'FIELD_NAME',
+        attr2 TYPE scx_attrname VALUE '',
+        attr3 TYPE scx_attrname VALUE '',
+        attr4 TYPE scx_attrname VALUE '',
       END OF field_empty,
       BEGIN OF negative_downtime,
-        msgid TYPE symsgid VALUE 'ZASSETPULSE',
-        msgno TYPE symsgno VALUE '002',
+        msgid TYPE symsgid      VALUE 'ZASSETPULSE',
+        msgno TYPE symsgno      VALUE '002',
+        attr1 TYPE scx_attrname VALUE '',
+        attr2 TYPE scx_attrname VALUE '',
+        attr3 TYPE scx_attrname VALUE '',
+        attr4 TYPE scx_attrname VALUE '',
       END OF negative_downtime,
       BEGIN OF schedule_in_past,
-        msgid TYPE symsgid VALUE 'ZASSETPULSE',
-        msgno TYPE symsgno VALUE '003',
+        msgid TYPE symsgid      VALUE 'ZASSETPULSE',
+        msgno TYPE symsgno      VALUE '003',
+        attr1 TYPE scx_attrname VALUE '',
+        attr2 TYPE scx_attrname VALUE '',
+        attr3 TYPE scx_attrname VALUE '',
+        attr4 TYPE scx_attrname VALUE '',
       END OF schedule_in_past,
       BEGIN OF invalid_domain_value,
-        msgid TYPE symsgid VALUE 'ZASSETPULSE',
-        msgno TYPE symsgno VALUE '004',
+        msgid TYPE symsgid      VALUE 'ZASSETPULSE',
+        msgno TYPE symsgno      VALUE '004',
         attr1 TYPE scx_attrname VALUE 'FIELD_VALUE',
         attr2 TYPE scx_attrname VALUE 'FIELD_NAME',
+        attr3 TYPE scx_attrname VALUE '',
+        attr4 TYPE scx_attrname VALUE '',
       END OF invalid_domain_value.
 
     DATA field_name  TYPE string.
@@ -752,7 +769,7 @@ CLASS lhc_equipment IMPLEMENTATION.
   METHOD setinitialstatus.
     MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
       ENTITY Equipment
-        UPDATE FIELDS ( op_status )
+        UPDATE FIELDS ( OpStatus )
         WITH VALUE #( FOR key IN keys ( %tky = key-%tky OpStatus = 'OPERATIONAL' ) ).
   ENDMETHOD.
 
@@ -786,7 +803,7 @@ CLASS lhc_equipment IMPLEMENTATION.
         APPEND VALUE #( %tky = equip-%tky ) TO failed-equipment.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'EquipType'
-                                                     field_value = equip-EquipType )
+                                                     field_value = CONV string( equip-EquipType ) )
                          %tky = equip-%tky )
                TO reported-equipment.
       ENDIF.
@@ -795,7 +812,7 @@ CLASS lhc_equipment IMPLEMENTATION.
         APPEND VALUE #( %tky = equip-%tky ) TO failed-equipment.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'Criticality'
-                                                     field_value = equip-Criticality )
+                                                     field_value = CONV string( equip-Criticality ) )
                          %tky = equip-%tky )
                TO reported-equipment.
       ENDIF.
@@ -847,7 +864,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
   METHOD setinitialstatus.
     MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
       ENTITY MaintRequest
-        UPDATE FIELDS ( status )
+        UPDATE FIELDS ( Status )
         WITH VALUE #( FOR key IN keys ( %tky = key-%tky Status = 'REPORTED' ) ).
   ENDMETHOD.
 
@@ -891,7 +908,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
         APPEND VALUE #( %tky = req-%tky ) TO failed-maintrequest.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'Severity'
-                                                     field_value = req-Severity )
+                                                     field_value = CONV string( req-Severity ) )
                          %tky = req-%tky )
                TO reported-maintrequest.
       ENDIF.
@@ -1042,7 +1059,7 @@ CLASS lhc_workorder IMPLEMENTATION.
         APPEND VALUE #( %tky = order-%tky ) TO failed-workorder.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'Priority'
-                                                     field_value = order-Priority )
+                                                     field_value = CONV string( order-Priority ) )
                          %tky = order-%tky )
                TO reported-workorder.
       ENDIF.

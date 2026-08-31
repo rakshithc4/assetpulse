@@ -34,7 +34,7 @@ CLASS lhc_workorder IMPLEMENTATION.
         APPEND VALUE #( %tky = order-%tky ) TO failed-workorder.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'Priority'
-                                                     field_value = order-Priority )
+                                                     field_value = CONV string( order-Priority ) )
                          %tky = order-%tky )
                TO reported-workorder.
       ENDIF.

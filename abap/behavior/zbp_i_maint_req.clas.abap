@@ -24,7 +24,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
   METHOD setinitialstatus.
     MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
       ENTITY MaintRequest
-        UPDATE FIELDS ( status )
+        UPDATE FIELDS ( Status )
         WITH VALUE #( FOR key IN keys ( %tky = key-%tky Status = 'REPORTED' ) ).
   ENDMETHOD.
 
@@ -68,7 +68,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
         APPEND VALUE #( %tky = req-%tky ) TO failed-maintrequest.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'Severity'
-                                                     field_value = req-Severity )
+                                                     field_value = CONV string( req-Severity ) )
                          %tky = req-%tky )
                TO reported-maintrequest.
       ENDIF.
