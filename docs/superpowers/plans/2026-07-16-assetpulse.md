@@ -654,6 +654,8 @@ git commit -m "feat(1.4): behavior definitions — actions, determinations, vali
 
 ### Task 1.5: Shared message exception + `ZBP_I_EQUIPMENT` implementation
 
+> **Correction found during the ADT checkpoint:** `zcx_assetpulse` inherited from `CX_ABAP_BEHV`, which doesn't exist — that name was a mix-up with the `IF_ABAP_BEHV_MESSAGE` interface it also implements. The correct standard superclass for a RAP message exception class is `CX_STATIC_CHECK`. Fixed below; audited the rest of the repo for the same mistake — this was the only occurrence.
+
 **Files:**
 - Create: `abap/behavior/zcx_assetpulse.clas.abap`
 - Create: `abap/behavior/zbp_i_equipment.clas.abap`
@@ -680,7 +682,7 @@ git commit -m "feat(1.4): behavior definitions — actions, determinations, vali
 ```abap
 CLASS zcx_assetpulse DEFINITION
   PUBLIC
-  INHERITING FROM cx_abap_behv
+  INHERITING FROM cx_static_check
   FINAL
   CREATE PUBLIC.
 

@@ -1,6 +1,6 @@
 CLASS zcx_assetpulse DEFINITION
   PUBLIC
-  INHERITING FROM cx_abap_behv
+  INHERITING FROM cx_static_check
   FINAL
   CREATE PUBLIC.
 
