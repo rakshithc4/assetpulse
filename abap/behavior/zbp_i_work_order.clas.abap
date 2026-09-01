@@ -85,13 +85,15 @@ CLASS lhc_workorder IMPLEMENTATION.
         FIELDS ( EquipId ) WITH CORRESPONDING #( keys )
       RESULT DATA(orders).
 
+    DATA(now_ts) = cl_abap_tstmp=>utclong2tstmp( utclong_current( ) ).
+
     MODIFY ENTITIES OF zi_work_order IN LOCAL MODE
       ENTITY WorkOrder
         UPDATE FIELDS ( Status StartedAt )
         WITH VALUE #( FOR key IN keys (
           %tky      = key-%tky
           Status    = 'IN_PROGRESS'
-          StartedAt = utclong_current( ) ) ).
+          StartedAt = now_ts ) ).
 
     DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
     LOOP AT orders INTO DATA(order).
@@ -127,6 +129,8 @@ CLASS lhc_workorder IMPLEMENTATION.
              TO reported-workorder.
     ENDLOOP.
 
+    DATA(now_ts) = cl_abap_tstmp=>utclong2tstmp( utclong_current( ) ).
+
     IF valid_keys IS NOT INITIAL.
       MODIFY ENTITIES OF zi_work_order IN LOCAL MODE
         ENTITY WorkOrder
@@ -134,7 +138,7 @@ CLASS lhc_workorder IMPLEMENTATION.
           WITH VALUE #( FOR key IN valid_keys (
             %tky             = key-%tky
             Status           = 'COMPLETED'
-            CompletedAt      = utclong_current( )
+            CompletedAt      = now_ts
             CompletionNotes  = key-%param-CompletionNotes
             DowntimeHours    = key-%param-DowntimeHours ) ).
 

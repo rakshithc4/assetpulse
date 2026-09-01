@@ -1030,6 +1030,12 @@ git commit -m "feat(1.6): maintenance request status machine + cross-BO equipmen
 
 ### Task 1.7: `ZBP_I_WORK_ORDER` implementation — status machine + cross-BO effects
 
+> **Corrections found during the ADT checkpoint:**
+> 1. Same `IN LOCAL MODE`→`PRIVILEGED` pattern as Task 1.6: both `MODIFY ENTITIES OF zi_ap_equipment` calls (`startwork` flipping equipment to MAINTENANCE, `completework` flipping it back to OPERATIONAL) are genuinely cross-BO and use `PRIVILEGED`. `zi_ap_equipment.bdef.abap` already declares `with privileged mode;` from Task 1.6's fix, so no further bdef change was needed. (This was actually caught proactively, before being pasted into Eclipse — see Task 1.6's note.)
+> 2. `utclong_current( )` returns type `utclong`, but `StartedAt`/`CompletedAt` are typed `timestampl` — there's no automatic conversion between them. Fixed by capturing the timestamp once per method (`DATA(now_ts) = cl_abap_tstmp=>utclong2tstmp( utclong_current( ) ).`) and referencing `now_ts` in the `VALUE #(...)` constructors instead of calling `utclong_current( )` inline.
+>
+> Audited `abap/test/ztc_assetpulse.clas.abap` for both patterns: it never calls `utclong_current( )` (StartedAt/CompletedAt aren't set directly by the test, only via the actions under test), so no timestamp fix applies there. Its own `IN LOCAL MODE` EML (touching all three entities directly) is unaffected by point 1 — a test class calling EML isn't "another BO's behavior pool," it's the standard `cl_abap_behv_test_environment` direct-EML pattern, which is why every SAP RAP ABAP Unit example uses `IN LOCAL MODE` this way regardless of which entity is under test.
+
 **Files:**
 - Create: `abap/behavior/zbp_i_work_order.clas.abap`
 
@@ -1124,13 +1130,15 @@ CLASS lhc_workorder IMPLEMENTATION.
         FIELDS ( EquipId ) WITH CORRESPONDING #( keys )
       RESULT DATA(orders).
 
+    DATA(now_ts) = cl_abap_tstmp=>utclong2tstmp( utclong_current( ) ).
+
     MODIFY ENTITIES OF zi_work_order IN LOCAL MODE
       ENTITY WorkOrder
         UPDATE FIELDS ( Status StartedAt )
         WITH VALUE #( FOR key IN keys (
           %tky      = key-%tky
           Status    = 'IN_PROGRESS'
-          StartedAt = utclong_current( ) ) ).
+          StartedAt = now_ts ) ).
 
     DATA equip_updates TYPE TABLE FOR UPDATE zi_ap_equipment\\Equipment.
     LOOP AT orders INTO DATA(order).
@@ -1166,6 +1174,8 @@ CLASS lhc_workorder IMPLEMENTATION.
              TO reported-workorder.
     ENDLOOP.
 
+    DATA(now_ts) = cl_abap_tstmp=>utclong2tstmp( utclong_current( ) ).
+
     IF valid_keys IS NOT INITIAL.
       MODIFY ENTITIES OF zi_work_order IN LOCAL MODE
         ENTITY WorkOrder
@@ -1173,7 +1183,7 @@ CLASS lhc_workorder IMPLEMENTATION.
           WITH VALUE #( FOR key IN valid_keys (
             %tky             = key-%tky
             Status           = 'COMPLETED'
-            CompletedAt      = utclong_current( )
+            CompletedAt      = now_ts
             CompletionNotes  = key-%param-CompletionNotes
             DowntimeHours    = key-%param-DowntimeHours ) ).
 
