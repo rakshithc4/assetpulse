@@ -98,7 +98,7 @@ CLASS lhc_workorder IMPLEMENTATION.
       APPEND VALUE #( EquipId = order-EquipId OpStatus = 'MAINTENANCE' ) TO equip_updates.
     ENDLOOP.
 
-    MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
+    MODIFY ENTITIES OF zi_ap_equipment PRIVILEGED
       ENTITY Equipment
         UPDATE FIELDS ( OpStatus )
         WITH equip_updates.
@@ -146,7 +146,7 @@ CLASS lhc_workorder IMPLEMENTATION.
       ENDLOOP.
 
       IF equip_updates IS NOT INITIAL.
-        MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
+        MODIFY ENTITIES OF zi_ap_equipment PRIVILEGED
           ENTITY Equipment
             UPDATE FIELDS ( OpStatus )
             WITH equip_updates.

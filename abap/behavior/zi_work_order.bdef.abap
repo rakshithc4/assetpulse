@@ -6,12 +6,14 @@ persistent table zwork_order
 etag master ChangedAt
 lock master
 authorization master ( instance )
+with privileged mode;
 {
   create ( internal );
   update;
 
-  field ( readonly ) OrderId, ReqId, EquipId, CreatedAt, ChangedAt;
-  field ( readonly ) Status, StartedAt, CompletedAt;
+  field ( readonly ) OrderId, CreatedAt, ChangedAt;
+  field ( readonly : update ) ReqId, EquipId, Status;
+  field ( readonly ) StartedAt, CompletedAt;
 
   action ( features : instance ) Schedule     parameter ZA_Schedule  result [1] $self;
   action ( features : instance ) StartWork                           result [1] $self;

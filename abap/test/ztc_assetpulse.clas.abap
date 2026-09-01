@@ -83,7 +83,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
   METHOD create_request.
     req_id = cl_system_uuid=>create_uuid_x16_static( ).
     MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         CREATE FIELDS ( EquipId Title Severity ReportedBy )
         WITH VALUE #( ( %cid = 'REQ1' %key-ReqId = req_id
                          EquipId = equip_id Title = 'Bearing noise'
@@ -96,7 +96,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
 
   METHOD convert_to_order.
     MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         EXECUTE ConvertToWorkOrder FROM VALUE #( ( %key-ReqId = req_id %param-Priority = '' ) )
       MAPPED   DATA(mapped)
       FAILED   DATA(failed)
@@ -104,7 +104,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
     COMMIT ENTITIES.
 
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest BY \_WorkOrder
+      ENTITY MaintReq BY \_WorkOrder
         FIELDS ( OrderId )
         WITH VALUE #( ( %key-ReqId = req_id ) )
       RESULT DATA(order_result).
@@ -151,7 +151,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
     DATA(req_id) = create_request( equip_id = equip_id ).
 
     MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         EXECUTE RejectRequest FROM VALUE #( ( %key-ReqId = req_id %param-Note = '' ) )
       FAILED   DATA(failed)
       REPORTED DATA(reported).
@@ -164,7 +164,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
     DATA(req_id) = create_request( equip_id = equip_id severity = 'CRITICAL' ).
 
     MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         EXECUTE RejectRequest FROM VALUE #( ( %key-ReqId = req_id %param-Note = 'Duplicate report' ) )
       FAILED   DATA(failed)
       REPORTED DATA(reported).
@@ -183,7 +183,7 @@ CLASS ztc_assetpulse IMPLEMENTATION.
     DATA(order_id) = convert_to_order( req_id ).
 
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         FIELDS ( Status ) WITH VALUE #( ( %key-ReqId = req_id ) )
       RESULT DATA(request_result).
     cl_abap_unit_assert=>assert_equals( act = request_result[ 1 ]-Status exp = 'CONVERTED' ).

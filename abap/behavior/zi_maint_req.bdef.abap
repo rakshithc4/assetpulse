@@ -1,7 +1,7 @@
 managed implementation in class zbp_i_maint_req unique;
 strict ( 2 );
 
-define behavior for ZI_Maint_Req alias MaintRequest
+define behavior for ZI_Maint_Req alias MaintReq
 persistent table zmaint_req
 etag master ChangedAt
 lock master

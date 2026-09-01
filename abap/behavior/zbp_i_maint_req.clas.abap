@@ -1,36 +1,36 @@
 CLASS lhc_maintrequest DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
     METHODS setinitialstatus FOR DETERMINE ON MODIFY
-      IMPORTING keys FOR MaintRequest~setinitialstatus.
+      IMPORTING keys FOR MaintReq~setinitialstatus.
 
     METHODS escalatecriticaltodown FOR DETERMINE ON MODIFY
-      IMPORTING keys FOR MaintRequest~escalatecriticaltodown.
+      IMPORTING keys FOR MaintReq~escalatecriticaltodown.
 
     METHODS validaterequestfields FOR VALIDATE ON SAVE
-      IMPORTING keys FOR MaintRequest~validaterequestfields.
+      IMPORTING keys FOR MaintReq~validaterequestfields.
 
     METHODS rejectrequest FOR MODIFY
-      IMPORTING keys FOR ACTION MaintRequest~rejectrequest RESULT result.
+      IMPORTING keys FOR ACTION MaintReq~rejectrequest RESULT result.
 
     METHODS converttoworkorder FOR MODIFY
-      IMPORTING keys FOR ACTION MaintRequest~converttoworkorder RESULT result.
+      IMPORTING keys FOR ACTION MaintReq~converttoworkorder RESULT result.
 
     METHODS get_instance_features FOR INSTANCE FEATURES
-      IMPORTING keys REQUEST requested_features FOR MaintRequest RESULT result.
+      IMPORTING keys REQUEST requested_features FOR MaintReq RESULT result.
 ENDCLASS.
 
 CLASS lhc_maintrequest IMPLEMENTATION.
 
   METHOD setinitialstatus.
     MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         UPDATE FIELDS ( Status )
         WITH VALUE #( FOR key IN keys ( %tky = key-%tky Status = 'REPORTED' ) ).
   ENDMETHOD.
 
   METHOD escalatecriticaltodown.
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         FIELDS ( Severity EquipId ) WITH CORRESPONDING #( keys )
       RESULT DATA(requests).
 
@@ -41,7 +41,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
     ENDLOOP.
 
     IF equip_updates IS NOT INITIAL.
-      MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
+      MODIFY ENTITIES OF zi_ap_equipment PRIVILEGED
         ENTITY Equipment
           UPDATE FIELDS ( OpStatus )
           WITH equip_updates.
@@ -50,7 +50,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
 
   METHOD validaterequestfields.
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         FIELDS ( Title Severity ) WITH CORRESPONDING #( keys )
       RESULT DATA(requests).
 
@@ -58,26 +58,26 @@ CLASS lhc_maintrequest IMPLEMENTATION.
 
     LOOP AT requests INTO DATA(req).
       IF req-Title IS INITIAL.
-        APPEND VALUE #( %tky = req-%tky ) TO failed-maintrequest.
+        APPEND VALUE #( %tky = req-%tky ) TO failed-maintreq.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid = zcx_assetpulse=>field_empty field_name = 'Title' )
                          %tky = req-%tky )
-               TO reported-maintrequest.
+               TO reported-maintreq.
       ENDIF.
 
       IF NOT line_exists( valid_severities[ table_line = req-Severity ] ).
-        APPEND VALUE #( %tky = req-%tky ) TO failed-maintrequest.
+        APPEND VALUE #( %tky = req-%tky ) TO failed-maintreq.
         APPEND VALUE #( %msg = NEW zcx_assetpulse( textid      = zcx_assetpulse=>invalid_domain_value
                                                      field_name  = 'Severity'
                                                      field_value = CONV string( req-Severity ) )
                          %tky = req-%tky )
-               TO reported-maintrequest.
+               TO reported-maintreq.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
 
   METHOD rejectrequest.
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         FIELDS ( Severity EquipId ) WITH CORRESPONDING #( keys )
       RESULT DATA(requests).
 
@@ -85,15 +85,15 @@ CLASS lhc_maintrequest IMPLEMENTATION.
     DELETE valid_keys WHERE %param-Note IS INITIAL.
 
     LOOP AT keys INTO DATA(bad_key) WHERE %param-Note IS INITIAL.
-      APPEND VALUE #( %tky = bad_key-%tky ) TO failed-maintrequest.
+      APPEND VALUE #( %tky = bad_key-%tky ) TO failed-maintreq.
       APPEND VALUE #( %msg = NEW zcx_assetpulse( textid = zcx_assetpulse=>field_empty field_name = 'Note' )
                        %tky = bad_key-%tky )
-             TO reported-maintrequest.
+             TO reported-maintreq.
     ENDLOOP.
 
     IF valid_keys IS NOT INITIAL.
       MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
-        ENTITY MaintRequest
+        ENTITY MaintReq
           UPDATE FIELDS ( Status RejectNote )
           WITH VALUE #( FOR key IN valid_keys (
             %tky       = key-%tky
@@ -108,7 +108,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
       ENDLOOP.
 
       IF equip_updates IS NOT INITIAL.
-        MODIFY ENTITIES OF zi_ap_equipment IN LOCAL MODE
+        MODIFY ENTITIES OF zi_ap_equipment PRIVILEGED
           ENTITY Equipment
             UPDATE FIELDS ( OpStatus )
             WITH equip_updates.
@@ -116,7 +116,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
     ENDIF.
 
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         ALL FIELDS WITH CORRESPONDING #( keys )
       RESULT DATA(updated).
 
@@ -125,39 +125,39 @@ CLASS lhc_maintrequest IMPLEMENTATION.
 
   METHOD converttoworkorder.
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         FIELDS ( Severity EquipId ) WITH CORRESPONDING #( keys )
       RESULT DATA(requests).
 
     MODIFY ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         UPDATE FIELDS ( Status )
         WITH VALUE #( FOR key IN keys ( %tky = key-%tky Status = 'CONVERTED' ) ).
 
     DATA work_orders TYPE TABLE FOR CREATE zi_work_order\\WorkOrder.
 
-    LOOP AT keys INTO DATA(key).
-      READ TABLE requests INTO DATA(req) WITH KEY %tky = key-%tky.
+    LOOP AT keys INTO DATA(wo_key).
+      READ TABLE requests INTO DATA(req) WITH KEY %tky = wo_key-%tky.
       CHECK sy-subrc = 0.
-      DATA(priority) = COND #( WHEN key-%param-Priority IS NOT INITIAL THEN key-%param-Priority ELSE req-Severity ).
-      APPEND VALUE #( %cid            = |WO_{ sy-uuid }|
-                       ReqId          = key-ReqId
+      DATA(priority) = COND #( WHEN wo_key-%param-Priority IS NOT INITIAL THEN wo_key-%param-Priority ELSE req-Severity ).
+      APPEND VALUE #( %cid            = |WO_{ cl_system_uuid=>create_uuid_c32_static( ) }|
+                       ReqId          = wo_key-ReqId
                        EquipId        = req-EquipId
                        Priority       = priority
                        Status         = 'CREATED' )
              TO work_orders.
     ENDLOOP.
 
-    MODIFY ENTITIES OF zi_work_order IN LOCAL MODE
+    MODIFY ENTITIES OF zi_work_order PRIVILEGED
       ENTITY WorkOrder
         CREATE FIELDS ( ReqId EquipId Priority Status )
         WITH work_orders
-      MAPPED DATA(mapped)
+      MAPPED DATA(create_mapped)
       FAILED DATA(create_failed)
       REPORTED DATA(create_reported).
 
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         ALL FIELDS WITH CORRESPONDING #( keys )
       RESULT DATA(updated).
 
@@ -166,7 +166,7 @@ CLASS lhc_maintrequest IMPLEMENTATION.
 
   METHOD get_instance_features.
     READ ENTITIES OF zi_maint_req IN LOCAL MODE
-      ENTITY MaintRequest
+      ENTITY MaintReq
         FIELDS ( Status ) WITH CORRESPONDING #( keys )
       RESULT DATA(requests).
 

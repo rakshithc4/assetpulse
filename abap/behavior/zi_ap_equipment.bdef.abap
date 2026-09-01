@@ -6,6 +6,7 @@ persistent table zequipment
 etag master ChangedAt
 lock master
 authorization master ( instance )
+with privileged mode;
 {
   create;
   update;

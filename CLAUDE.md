@@ -48,7 +48,7 @@ scripts:     node web/scripts/sap-smoke.mjs | node web/scripts/seed.mjs
 - OData v4 writes need `x-csrf-token` from a prior GET (`x-csrf-token: fetch`) AND that GET's cookies replayed. Proxy owns this centrally.
 - BTP trial hibernates nightly: "connection refused" usually means start the system in the BTP cockpit, not a code bug. Trial resets happen: recovery = abapGit pull + `docs/REDEPLOY.md`.
 - Action URLs carry the namespace: `WorkOrder(...)/com.sap.gateway.srvd.zassetpulse_srv.v0001.StartWork`. Copy the base path from the published Service Binding; never guess.
-- Cross-BO EML (StartWork/CompleteWork touching ZI_AP_EQUIPMENT) runs IN LOCAL MODE inside the work-order behavior pool.
+- Cross-BO EML (StartWork/CompleteWork touching ZI_AP_EQUIPMENT from the work-order pool; RejectRequest/EscalateCriticalToDown touching it from the maint-request pool; ConvertToWorkOrder creating ZI_WORK_ORDER from the maint-request pool) uses `PRIVILEGED`, not `IN LOCAL MODE` — `IN LOCAL MODE` only works for a RAP BO's own implementation class targeting itself. `PRIVILEGED` requires the *target* entity's bdef to declare `with privileged mode;`.
 
 ## Status (update as phases land)
 - [x] Plan written via writing-plans — `docs/superpowers/plans/2026-07-16-assetpulse.md`
