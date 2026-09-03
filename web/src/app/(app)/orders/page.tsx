@@ -6,6 +6,16 @@ import { useOrderList } from '@/hooks/use-orders';
 import { LifecycleBadge } from '@/components/badges';
 import { EmptyState, ErrorState, Skeleton } from '@/components/states';
 import { Button } from '@/components/ui/button';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
+import tokens from '../../../../../design/tokens.json';
+
+const LIFECYCLE_ACCENT: Record<string, string> = {
+  CREATED: tokens.lifecycle.created.border,
+  SCHEDULED: tokens.lifecycle.scheduled.border,
+  IN_PROGRESS: tokens.lifecycle.in_progress.border,
+  COMPLETED: tokens.lifecycle.completed.border,
+  CANCELLED: tokens.lifecycle.cancelled.border,
+};
 
 export default function OrdersListPage() {
   const { data: session } = useSession();
@@ -31,13 +41,18 @@ export default function OrdersListPage() {
       {query.data?.length === 0 && <EmptyState title="No work orders" description="Converted requests will appear here." />}
       <ul className="flex flex-col gap-2">
         {query.data?.map((order) => (
-          <li key={order.OrderId} className="flex items-center justify-between rounded-md border border-surface-raised bg-surface-panel px-3 py-2 text-sm">
+          <SpotlightCard
+            key={order.OrderId}
+            as="li"
+            accent={LIFECYCLE_ACCENT[order.Status] ?? tokens.lifecycle.created.border}
+            className="flex items-center justify-between rounded-md border border-surface-raised bg-surface-panel px-3 py-2 text-sm"
+          >
             <Link href={`/orders/${order.OrderId}`} className="font-mono text-content-primary">#{order.OrderId}</Link>
             <div className="flex items-center gap-2">
               <span className="text-content-secondary">{order.AssignedTo ?? 'Unassigned'}</span>
               <LifecycleBadge status={order.Status} />
             </div>
-          </li>
+          </SpotlightCard>
         ))}
       </ul>
     </div>

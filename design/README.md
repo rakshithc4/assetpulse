@@ -18,6 +18,10 @@ Every badge pairs color with an icon or text label — never color alone (AA con
 
 Every status/severity chip = `bg` (fill) + `fg` (text/icon) + `border` (1px, slightly more saturated than `fg`) from the same token group. Never mix `bg` from one group with `fg` from another.
 
+## Third-party component credit
+
+The hover-underline link micro-interaction used for "View all" links on the control room dashboard (`web/src/components/ui/skiper-ui/skiper40.tsx`) is sourced from [Skiper UI](https://skiper-ui.com) (component `skiper40`, free tier — attribution required per its license, preserved in the file's own header comment). Everything else under `web/src/components/ui/` is original work for this project.
+
 ## What's not in this pass
 
 Full screen mockups (7 screens + 2 key dialogs) called for in `DESIGN_BRIEF.md` weren't generated here — this pass covered tokens only, since that's what actually drives the Tailwind build. Components consume these tokens directly in dev; if full static mockups are wanted later (e.g. for a portfolio case study image), run the brief's screen deliverables separately.

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useEquipmentList } from '@/hooks/use-equipment';
 import { OpStatusBadge } from '@/components/badges';
 import { EmptyState, ErrorState, Skeleton } from '@/components/states';
@@ -13,6 +14,7 @@ export default function EquipmentListPage() {
   const [search, setSearch] = useState('');
   const [opStatus, setOpStatus] = useState<Equipment['OpStatus'] | 'ALL'>('ALL');
   const query = useEquipmentList({ search: search || undefined, opStatus: opStatus === 'ALL' ? undefined : opStatus });
+  const reduceMotion = useReducedMotion();
 
   return (
     <div className="flex flex-col gap-4">
@@ -45,8 +47,14 @@ export default function EquipmentListPage() {
             </tr>
           </thead>
           <tbody>
-            {query.data.map((equip) => (
-              <tr key={equip.EquipId} className="border-b border-surface-raised/50 hover:bg-surface-panel">
+            {query.data.map((equip, i) => (
+              <motion.tr
+                key={equip.EquipId}
+                initial={reduceMotion ? false : { opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25, delay: reduceMotion ? 0 : Math.min(i, 12) * 0.03 }}
+                className="border-b border-surface-raised/50 hover:bg-surface-panel"
+              >
                 <td className="py-2">
                   <Link href={`/equipment/${equip.EquipId}`} className="font-mono text-content-primary">{equip.EquipTag}</Link>
                 </td>
@@ -55,7 +63,7 @@ export default function EquipmentListPage() {
                 <td className="py-2 text-content-secondary">{equip.Site}</td>
                 <td className="py-2 text-content-secondary">{equip.Criticality}</td>
                 <td className="py-2"><OpStatusBadge status={equip.OpStatus} /></td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>
