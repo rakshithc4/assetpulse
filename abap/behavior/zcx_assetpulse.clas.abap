@@ -9,32 +9,32 @@ CLASS zcx_assetpulse DEFINITION
 
     CONSTANTS:
       BEGIN OF field_empty,
-        msgid TYPE symsgid      VALUE 'ZASSETPULSE',
-        msgno TYPE symsgno      VALUE '001',
+        msgid TYPE symsgid VALUE 'ZASSETPULSE',
+        msgno TYPE symsgno VALUE '001',
         attr1 TYPE scx_attrname VALUE 'FIELD_NAME',
         attr2 TYPE scx_attrname VALUE '',
         attr3 TYPE scx_attrname VALUE '',
         attr4 TYPE scx_attrname VALUE '',
       END OF field_empty,
       BEGIN OF negative_downtime,
-        msgid TYPE symsgid      VALUE 'ZASSETPULSE',
-        msgno TYPE symsgno      VALUE '002',
+        msgid TYPE symsgid VALUE 'ZASSETPULSE',
+        msgno TYPE symsgno VALUE '002',
         attr1 TYPE scx_attrname VALUE '',
         attr2 TYPE scx_attrname VALUE '',
         attr3 TYPE scx_attrname VALUE '',
         attr4 TYPE scx_attrname VALUE '',
       END OF negative_downtime,
       BEGIN OF schedule_in_past,
-        msgid TYPE symsgid      VALUE 'ZASSETPULSE',
-        msgno TYPE symsgno      VALUE '003',
+        msgid TYPE symsgid VALUE 'ZASSETPULSE',
+        msgno TYPE symsgno VALUE '003',
         attr1 TYPE scx_attrname VALUE '',
         attr2 TYPE scx_attrname VALUE '',
         attr3 TYPE scx_attrname VALUE '',
         attr4 TYPE scx_attrname VALUE '',
       END OF schedule_in_past,
       BEGIN OF invalid_domain_value,
-        msgid TYPE symsgid      VALUE 'ZASSETPULSE',
-        msgno TYPE symsgno      VALUE '004',
+        msgid TYPE symsgid VALUE 'ZASSETPULSE',
+        msgno TYPE symsgno VALUE '004',
         attr1 TYPE scx_attrname VALUE 'FIELD_VALUE',
         attr2 TYPE scx_attrname VALUE 'FIELD_NAME',
         attr3 TYPE scx_attrname VALUE '',
@@ -46,8 +46,8 @@ CLASS zcx_assetpulse DEFINITION
 
     METHODS constructor
       IMPORTING
-        textid     LIKE if_t100_message=>t100key OPTIONAL
-        previous   LIKE previous OPTIONAL
+        textid      LIKE if_t100_message=>t100key OPTIONAL
+        previous    LIKE previous OPTIONAL
         field_name  TYPE string OPTIONAL
         field_value TYPE string OPTIONAL.
 ENDCLASS.

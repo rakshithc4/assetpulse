@@ -1,18 +1,19 @@
 managed implementation in class zbp_i_equipment unique;
 strict ( 2 );
+with privileged mode disabling NoAuthCheck;
 
 define behavior for ZI_AP_Equipment alias Equipment
 persistent table zequipment
 etag master ChangedAt
 lock master
-authorization master ( instance )
-with privileged mode;
+authorization master ( none )
+
 {
   create;
   update;
 
-  field ( readonly ) EquipId, CreatedAt, ChangedAt;
-  field ( readonly : update ) EquipTag;
+  field ( readonly ) CreatedAt, ChangedAt;
+  field ( readonly : update ) EquipId, EquipTag;
 
   determination SetInitialStatus on modify { create; }
 
@@ -32,3 +33,9 @@ with privileged mode;
       ChangedAt   = changed_at;
     }
 }
+
+define authorization context NoAuthCheck
+{
+}
+
+define own authorization context by privileged mode;

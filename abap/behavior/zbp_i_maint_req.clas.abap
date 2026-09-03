@@ -140,7 +140,14 @@ CLASS lhc_maintrequest IMPLEMENTATION.
       READ TABLE requests INTO DATA(req) WITH KEY %tky = wo_key-%tky.
       CHECK sy-subrc = 0.
       DATA(priority) = COND #( WHEN wo_key-%param-Priority IS NOT INITIAL THEN wo_key-%param-Priority ELSE req-Severity ).
-      APPEND VALUE #( %cid            = |WO_{ cl_system_uuid=>create_uuid_c32_static( ) }|
+
+      TRY.
+          DATA(wo_cid) = |WO_{ cl_system_uuid=>create_uuid_c32_static( ) }|.
+        CATCH cx_uuid_error.
+          CONTINUE.
+      ENDTRY.
+
+      APPEND VALUE #( %cid            = wo_cid
                        ReqId          = wo_key-ReqId
                        EquipId        = req-EquipId
                        Priority       = priority

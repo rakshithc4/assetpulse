@@ -1,18 +1,18 @@
 managed implementation in class zbp_i_work_order unique;
 strict ( 2 );
+with privileged mode disabling NoAuthCheck;
 
 define behavior for ZI_Work_Order alias WorkOrder
 persistent table zwork_order
 etag master ChangedAt
 lock master
-authorization master ( instance )
-with privileged mode;
+authorization master ( none )
 {
-  create ( internal );
+  create;
   update;
 
-  field ( readonly ) OrderId, CreatedAt, ChangedAt;
-  field ( readonly : update ) ReqId, EquipId, Status;
+  field ( readonly ) CreatedAt, ChangedAt;
+  field ( readonly : update ) OrderId, ReqId, EquipId, Status;
   field ( readonly ) StartedAt, CompletedAt;
 
   action ( features : instance ) Schedule     parameter ZA_Schedule  result [1] $self;
@@ -40,3 +40,9 @@ with privileged mode;
       ChangedAt        = changed_at;
     }
 }
+
+define authorization context NoAuthCheck
+{
+}
+
+define own authorization context by privileged mode;

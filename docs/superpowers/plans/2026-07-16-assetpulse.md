@@ -508,6 +508,8 @@ git commit -m "feat(1.3): CDS interface root view entities with associations"
 
 ### Task 1.4: Behavior definitions (interface layer, all three roots)
 
+> **Correction(s) found during the ABAP Unit / ATC verification checkpoint (12/12 passing, 0 ATC errors):** `authorization master ( instance )` dumps with `BEHAVIOR_INTERNAL_ACCESS` — no authorization implementation is built for v1 (out of scope per spec §10). All three bdefs now use `authorization master ( none )` and `with privileged mode disabling NoAuthCheck;`, with a trailing `define authorization context NoAuthCheck { } / define own authorization context by privileged mode;` block. Root entity KEY fields (`EquipId`, `ReqId`, `OrderId`) moved from the plain-`readonly` group into `field ( readonly : update )` — there is no early-numbering determination in this codebase, so keys are client-supplied UUIDs at creation, then locked. `ZI_Work_Order`'s `create;` is now unqualified (was `create ( internal )`) — the projection `zc_work_order.ddls.abap` still doesn't expose `use create;`, so `WorkOrder` remains non-directly-creatable via the public OData service regardless. Determination/validation trigger clauses on `ZI_Maint_Req` narrowed to `on modify { field Severity; }` / `on save { field Title, Severity; }` (were `{ create; }`). See `abap/behavior/zi_ap_equipment.bdef.abap`, `zi_maint_req.bdef.abap`, `zi_work_order.bdef.abap` for the exact activated source — treat those files as ground truth over the code blocks below.
+
 **Files:**
 - Create: `abap/behavior/zi_ap_equipment.bdef.abap`
 - Create: `abap/behavior/zi_maint_req.bdef.abap`
@@ -843,7 +845,11 @@ git commit -m "feat(1.5): shared RAP message exception + equipment behavior impl
 > 6. `sy-uuid` (not a valid field in ABAP Cloud) replaced with `cl_system_uuid=>create_uuid_c32_static( )` for the `%cid` value.
 > 7. `MAPPED DATA(mapped)` renamed to `MAPPED DATA(create_mapped)` — `mapped` collides with an implicit RAP framework variable name.
 >
-> The same `IN LOCAL MODE`→`PRIVILEGED` audit was run proactively against Task 1.7's `zbp_i_work_order.clas.abap` before it was pasted into Eclipse (two occurrences found and fixed there too) and against Task 1.9's `ztc_assetpulse.clas.abap` for the alias rename (`ENTITY MaintReq`, six occurrences) — its own `IN LOCAL MODE` EML stays as-is, since ABAP Unit test code calling EML directly is not "another BO's behavior pool" and doesn't fall under point 3.
+> The same `IN LOCAL MODE`→`PRIVILEGED` audit was run proactively against Task 1.7's `zbp_i_work_order.clas.abap` before it was pasted into Eclipse (two occurrences found and fixed there too) and against Task 1.9's `ztc_assetpulse.clas.abap` for the alias rename (`ENTITY MaintReq`, six occurrences).
+>
+> **Correction found during the ABAP Unit / ATC verification checkpoint (12/12 passing, 0 ATC errors):**
+> 8. Point 3 above was wrong about test code being exempt: `ztc_assetpulse.clas.abap`'s EML also needed `PRIVILEGED` throughout (every entity in that suite is set up via cross-object test doubles, not the class's "own" BO) — corrected there, see Task 1.9's note.
+> 9. `converttoworkorder`'s `%cid` generation wrapped in `TRY ... CATCH cx_uuid_error` — ATC flags an uncaught exception on `cl_system_uuid=>create_uuid_c32_static( )`.
 
 **Files:**
 - Create: `abap/behavior/zbp_i_maint_req.clas.abap`
@@ -1535,6 +1541,16 @@ git commit -m "feat(1.8): CDS projections, projection behaviors, and Fiori metad
 ```
 
 ### Task 1.9: ABAP Unit test suite `ZTC_ASSETPULSE`
+
+> **Corrections found during the ABAP Unit / ATC verification checkpoint (12/12 passing, 0 ATC errors) — the whole file was substantially reworked; `abap/test/ztc_assetpulse.clas.abap` is ground truth over the code below:**
+> 1. `cl_abap_behv_test_environment=>create( ... )` is not a real API — replaced with `cl_cds_test_environment=>create_for_multiple_cds( i_for_entities = VALUE #( ( i_for_entity = 'ZI_AP_EQUIPMENT' ) ... ) )`, typed `REF TO if_cds_test_environment` (was `REF TO if_abap_behv_test_environment`), plus `environment->enable_double_redirection( )` in `class_setup` to allow cross-entity `SELECT` in test helpers (see point 4).
+> 2. Every EML statement now uses `PRIVILEGED` instead of `IN LOCAL MODE` (corrects the wrong assumption noted in Task 1.6 point 8).
+> 3. `create_equipment`/`create_request` supply the key (`EquipId`/`ReqId`) as a plain field in `CREATE FIELDS(...)`, not via `%key-` — `%key-` only identifies an *existing* record, it can't supply a new key at creation. `create_equipment` also gained assertions: `assert_initial( failed-equipment )`, `assert_not_initial( mapped-equipment )`, `assert_equals( mapped-equipment[ 1 ]-EquipId, equip_id )`.
+> 4. `convert_to_order`'s `READ ENTITIES ... ENTITY MaintReq BY \_WorkOrder` is invalid — `\_WorkOrder` is a plain association between independent roots, not a composition, so `BY \_association` doesn't apply. Replaced with a direct `SELECT SINGLE OrderId FROM zi_work_order WHERE ReqId = @req_id INTO @order_id.` (enabled by `enable_double_redirection`).
+> 5. Method names shortened to fit ABAP's 30-character identifier limit (declaration and implementation both): `create_equipment_sets_operational` → `create_equip_sets_operational`, `critical_request_downs_equipment` → `crit_request_downs_equip`, `reject_critical_restores_equipment` → `reject_crit_restores_equip`, `start_work_illegal_from_created_fails` → `start_work_bad_from_created`, `complete_negative_downtime_fails` → `complete_neg_downtime_fails`.
+> 6. `failed-maintrequest` → `failed-maintreq` (component name must match the `MaintReq` alias, per Task 1.6 point 1).
+> 7. Class definition gained `PUBLIC`: `CLASS ztc_assetpulse DEFINITION PUBLIC FOR TESTING`.
+> 8. 12 test methods total, all declared and implemented — ABAP Unit 12/12 green, ATC 0 errors.
 
 **Files:**
 - Create: `abap/test/ztc_assetpulse.clas.abap`
