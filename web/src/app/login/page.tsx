@@ -3,6 +3,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { DemoRole } from '@/lib/auth';
+import { LoginHero } from '@/components/ui/login-hero';
 
 const PERSONAS: { persona: DemoRole; title: string; description: string }[] = [
   { persona: 'engineer', title: 'Engineer', description: 'Reports faults from the field.' },
@@ -22,19 +23,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-6">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-content-primary">AssetPulse</h1>
-        <p className="mt-1 text-sm text-content-secondary">Asset maintenance control room</p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+    <LoginHero title="AssetPulse" subtitle="Asset maintenance control room">
+      <div className="grid justify-center gap-4 sm:grid-cols-3">
         {PERSONAS.map(({ persona, title, description }) => (
           <button
             key={persona}
             type="button"
             onClick={() => handleLogin(persona)}
             disabled={pending !== null}
-            className="w-64 rounded-lg border border-surface-raised bg-surface-panel p-5 text-left transition-colors hover:border-content-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-content-primary disabled:opacity-50"
+            className="w-64 rounded-md border border-surface-raised bg-surface-panel/80 p-5 text-left backdrop-blur-sm transition-colors hover:border-content-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-content-primary disabled:opacity-50"
           >
             <div className="font-medium text-content-primary">{title}</div>
             <p className="mt-1 text-sm text-content-secondary">{description}</p>
@@ -42,6 +39,6 @@ export default function LoginPage() {
           </button>
         ))}
       </div>
-    </main>
+    </LoginHero>
   );
 }
