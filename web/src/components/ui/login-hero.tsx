@@ -11,10 +11,12 @@ import { ShaderBackground } from '@/components/ui/shader-background';
 export function LoginHero({
   title,
   subtitle,
+  icon,
   children,
 }: {
   title: string;
   subtitle?: string;
+  icon?: ReactNode;
   children?: ReactNode;
 }) {
   const words = title.split(' ');
@@ -27,6 +29,16 @@ export function LoginHero({
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center text-center">
+        {icon && (
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mb-4"
+          >
+            {icon}
+          </motion.div>
+        )}
         <motion.h1
           initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -7,6 +7,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { DemoRole } from '@/lib/auth';
 import { LoginHero } from '@/components/ui/login-hero';
 import { PersonaCard } from '@/components/ui/persona-card';
+import { AssetPulseLogo } from '@/components/ui/asset-pulse-logo';
 import tokens from '../../../../design/tokens.json';
 
 // Icon + tag + accent chosen per role, reusing tokens already in
@@ -59,7 +60,11 @@ export default function LoginPage() {
   }
 
   return (
-    <LoginHero title="AssetPulse" subtitle="Asset maintenance control room">
+    <LoginHero
+      title="AssetPulse"
+      subtitle="Asset maintenance control room"
+      icon={<AssetPulseLogo className="size-16 text-content-secondary" />}
+    >
       <div className="grid justify-center gap-4 sm:grid-cols-3">
         {PERSONAS.map(({ persona, tag, title, description, icon, accent }) => (
           <PersonaCard
