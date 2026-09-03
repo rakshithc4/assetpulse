@@ -56,9 +56,9 @@ scripts:     node web/scripts/sap-smoke.mjs | node web/scripts/seed.mjs
 
 ## Status (update as phases land)
 - [x] Plan written via writing-plans — `docs/superpowers/plans/2026-07-16-assetpulse.md`
-- [ ] ABAP active + abapGit linked + ABAP Unit green + ATC clean
-- [ ] Binding published + comm user + smoke green
-- [ ] Design tokens + screens approved
-- [ ] Frontend complete (mock gates green)
-- [ ] Analytics live on Render
+- [x] ABAP active, ABAP Unit 12/12 green, ATC 0 errors — abapGit link + comm scenario still pending (human checkpoints)
+- [x] Binding published (live `.env` URLs wired) — comm user (`SAP_USER`/`SAP_PASS`) still pending, smoke script not yet run against live
+- [ ] Design tokens + screens approved — `design/tokens.json` doesn't exist yet; Tailwind falls back to `design/tokens.example.json`
+- [x] Frontend complete (mock gates green) — 19 test files / 64 tests passing, lint+typecheck clean
+- [x] Analytics complete (mock gates green) — 16 tests passing, ruff clean — not yet deployed to Render
 - [ ] Live E2E + seed + docs + v1.0.0
