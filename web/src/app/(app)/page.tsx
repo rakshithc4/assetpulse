@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useKpiSummary } from '@/hooks/use-insights';
 import { useEquipmentList } from '@/hooks/use-equipment';
 import { useRequestList } from '@/hooks/use-requests';
@@ -20,6 +21,7 @@ const AmbientOrb = dynamic(() => import('@/components/ui/ambient-orb').then((m) 
 });
 
 export default function DashboardPage() {
+  const reduceMotion = useReducedMotion();
   const kpi = useKpiSummary();
   const equipmentQuery = useEquipmentList();
   const criticalAlerts = useRequestList({ status: 'REPORTED' });
@@ -59,27 +61,29 @@ export default function DashboardPage() {
         {equipmentQuery.data?.length === 0 && <EmptyState title="No equipment yet" description="Equipment will appear here once registered." />}
         {equipmentQuery.data && equipmentQuery.data.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {equipmentQuery.data.map((equip) => (
-              <SpotlightCard
-                key={equip.EquipId}
-                accent={
-                  equip.OpStatus === 'DOWN'
-                    ? tokens.opstatus.down.border
-                    : equip.OpStatus === 'MAINTENANCE'
-                      ? tokens.opstatus.maintenance.border
-                      : tokens.opstatus.operational.border
-                }
-                className="rounded-md border border-surface-raised bg-surface-panel"
-              >
-                <Link
-                  href={`/equipment/${equip.EquipId}`}
-                  className="flex items-center gap-2 px-3 py-2 text-sm hover:border-content-secondary"
+            <AnimatePresence initial={false}>
+              {equipmentQuery.data.map((equip) => (
+                <SpotlightCard
+                  key={equip.EquipId}
+                  accent={
+                    equip.OpStatus === 'DOWN'
+                      ? tokens.opstatus.down.border
+                      : equip.OpStatus === 'MAINTENANCE'
+                        ? tokens.opstatus.maintenance.border
+                        : tokens.opstatus.operational.border
+                  }
+                  className="rounded-md border border-surface-raised bg-surface-panel"
                 >
-                  <span className="font-mono text-content-primary">{equip.EquipTag}</span>
-                  <OpStatusBadge status={equip.OpStatus} />
-                </Link>
-              </SpotlightCard>
-            ))}
+                  <Link
+                    href={`/equipment/${equip.EquipId}`}
+                    className="flex items-center gap-2 px-3 py-2 text-sm hover:border-content-secondary"
+                  >
+                    <span className="font-mono text-content-primary">{equip.EquipTag}</span>
+                    <OpStatusBadge status={equip.OpStatus} />
+                  </Link>
+                </SpotlightCard>
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </section>
@@ -90,17 +94,24 @@ export default function DashboardPage() {
           <EmptyState title="No critical alerts" description="Nothing critical reported right now." />
         )}
         <ul className="flex flex-col gap-2">
-          {criticalAlerts.data
-            ?.filter((r) => r.Severity === 'CRITICAL')
-            .map((req) => (
-              <li
-                key={req.ReqId}
-                className="flex items-center justify-between rounded-md border border-severity-critical-border bg-severity-critical-bg px-3 py-2"
-              >
-                <Link href={`/requests/${req.ReqId}`} className="text-sm text-severity-critical-fg">{req.Title}</Link>
-                <SeverityBadge severity={req.Severity} />
-              </li>
-            ))}
+          <AnimatePresence initial={false}>
+            {criticalAlerts.data
+              ?.filter((r) => r.Severity === 'CRITICAL')
+              .map((req) => (
+                <motion.li
+                  key={req.ReqId}
+                  layout={!reduceMotion}
+                  initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className="flex items-center justify-between rounded-md border border-severity-critical-border bg-severity-critical-bg px-3 py-2"
+                >
+                  <Link href={`/requests/${req.ReqId}`} className="text-sm text-severity-critical-fg">{req.Title}</Link>
+                  <SeverityBadge severity={req.Severity} />
+                </motion.li>
+              ))}
+          </AnimatePresence>
         </ul>
       </section>
 
@@ -110,18 +121,36 @@ export default function DashboardPage() {
           <Link001 href="/orders" className="text-xs text-content-secondary hover:text-content-primary">View all</Link001>
         </div>
         <ul className="flex flex-col gap-1 text-sm">
-          {recentRequests.data?.slice(0, 5).map((req) => (
-            <li key={req.ReqId} className="flex justify-between text-content-secondary">
-              <span>Request: {req.Title}</span>
-              <span className="font-mono text-xs">{new Date(req.ChangedAt).toLocaleString()}</span>
-            </li>
-          ))}
-          {recentOrders.data?.slice(0, 5).map((order) => (
-            <li key={order.OrderId} className="flex justify-between text-content-secondary">
-              <span>Order #{order.OrderId}: {order.Status}</span>
-              <span className="font-mono text-xs">{new Date(order.ChangedAt).toLocaleString()}</span>
-            </li>
-          ))}
+          <AnimatePresence initial={false}>
+            {recentRequests.data?.slice(0, 5).map((req) => (
+              <motion.li
+                key={`req-${req.ReqId}`}
+                layout={!reduceMotion}
+                initial={reduceMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={reduceMotion ? undefined : { opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex justify-between text-content-secondary"
+              >
+                <span>Request: {req.Title}</span>
+                <span className="font-mono text-xs">{new Date(req.ChangedAt).toLocaleString()}</span>
+              </motion.li>
+            ))}
+            {recentOrders.data?.slice(0, 5).map((order) => (
+              <motion.li
+                key={`order-${order.OrderId}`}
+                layout={!reduceMotion}
+                initial={reduceMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={reduceMotion ? undefined : { opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex justify-between text-content-secondary"
+              >
+                <span>Order #{order.OrderId}: {order.Status}</span>
+                <span className="font-mono text-xs">{new Date(order.ChangedAt).toLocaleString()}</span>
+              </motion.li>
+            ))}
+          </AnimatePresence>
         </ul>
       </section>
     </div>

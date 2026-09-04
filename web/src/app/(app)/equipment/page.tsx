@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useEquipmentList } from '@/hooks/use-equipment';
 import { OpStatusBadge } from '@/components/badges';
 import { EmptyState, ErrorState, Skeleton } from '@/components/states';
@@ -47,24 +47,28 @@ export default function EquipmentListPage() {
             </tr>
           </thead>
           <tbody>
-            {query.data.map((equip, i) => (
-              <motion.tr
-                key={equip.EquipId}
-                initial={reduceMotion ? false : { opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.25, delay: reduceMotion ? 0 : Math.min(i, 12) * 0.03 }}
-                className="border-b border-surface-raised/50 hover:bg-surface-panel"
-              >
-                <td className="py-2">
-                  <Link href={`/equipment/${equip.EquipId}`} className="font-mono text-content-primary">{equip.EquipTag}</Link>
-                </td>
-                <td className="py-2 text-content-secondary">{equip.Name}</td>
-                <td className="py-2 text-content-secondary">{equip.EquipType}</td>
-                <td className="py-2 text-content-secondary">{equip.Site}</td>
-                <td className="py-2 text-content-secondary">{equip.Criticality}</td>
-                <td className="py-2"><OpStatusBadge status={equip.OpStatus} /></td>
-              </motion.tr>
-            ))}
+            <AnimatePresence initial={false} mode="popLayout">
+              {query.data.map((equip, i) => (
+                <motion.tr
+                  key={equip.EquipId}
+                  layout={!reduceMotion}
+                  initial={reduceMotion ? false : { opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, transition: { duration: 0.15 } }}
+                  transition={{ duration: 0.25, delay: reduceMotion ? 0 : Math.min(i, 12) * 0.03 }}
+                  className="border-b border-surface-raised/50 hover:bg-surface-panel"
+                >
+                  <td className="py-2">
+                    <Link href={`/equipment/${equip.EquipId}`} className="font-mono text-content-primary">{equip.EquipTag}</Link>
+                  </td>
+                  <td className="py-2 text-content-secondary">{equip.Name}</td>
+                  <td className="py-2 text-content-secondary">{equip.EquipType}</td>
+                  <td className="py-2 text-content-secondary">{equip.Site}</td>
+                  <td className="py-2 text-content-secondary">{equip.Criticality}</td>
+                  <td className="py-2"><OpStatusBadge status={equip.OpStatus} /></td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
           </tbody>
         </table>
       )}

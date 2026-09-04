@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { AnimatePresence } from 'motion/react';
 import { useSession } from 'next-auth/react';
 import { useOrderList } from '@/hooks/use-orders';
 import { LifecycleBadge } from '@/components/badges';
@@ -40,20 +41,22 @@ export default function OrdersListPage() {
       {query.isError && <ErrorState message="Could not load work orders" onRetry={() => query.refetch()} />}
       {query.data?.length === 0 && <EmptyState title="No work orders" description="Converted requests will appear here." />}
       <ul className="flex flex-col gap-2">
-        {query.data?.map((order) => (
-          <SpotlightCard
-            key={order.OrderId}
-            as="li"
-            accent={LIFECYCLE_ACCENT[order.Status] ?? tokens.lifecycle.created.border}
-            className="flex items-center justify-between rounded-md border border-surface-raised bg-surface-panel px-3 py-2 text-sm"
-          >
-            <Link href={`/orders/${order.OrderId}`} className="font-mono text-content-primary">#{order.OrderId}</Link>
-            <div className="flex items-center gap-2">
-              <span className="text-content-secondary">{order.AssignedTo ?? 'Unassigned'}</span>
-              <LifecycleBadge status={order.Status} />
-            </div>
-          </SpotlightCard>
-        ))}
+        <AnimatePresence initial={false}>
+          {query.data?.map((order) => (
+            <SpotlightCard
+              key={order.OrderId}
+              as="li"
+              accent={LIFECYCLE_ACCENT[order.Status] ?? tokens.lifecycle.created.border}
+              className="flex items-center justify-between rounded-md border border-surface-raised bg-surface-panel px-3 py-2 text-sm"
+            >
+              <Link href={`/orders/${order.OrderId}`} className="font-mono text-content-primary">#{order.OrderId}</Link>
+              <div className="flex items-center gap-2">
+                <span className="text-content-secondary">{order.AssignedTo ?? 'Unassigned'}</span>
+                <LifecycleBadge status={order.Status} />
+              </div>
+            </SpotlightCard>
+          ))}
+        </AnimatePresence>
       </ul>
     </div>
   );

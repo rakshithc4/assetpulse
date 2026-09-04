@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from 'motion/react';
 import type { MouseEvent, ReactNode } from 'react';
 import { cn, hexToRgba } from '@/lib/utils';
 
@@ -11,6 +11,10 @@ import { cn, hexToRgba } from '@/lib/utils';
  * duplicating the motion-value wiring. Purely presentational — wraps
  * whatever's passed as children (a Link, a div, plain content); never
  * touches data fetching or business logic.
+ *
+ * Also carries `layout` plus a default fade/slide enter-exit — every list
+ * that maps this component gets smooth reflow on filter/sort/add/remove for
+ * free, as long as the caller wraps its `.map()` in <AnimatePresence>.
  */
 export function SpotlightCard({
   accent,
@@ -51,6 +55,11 @@ export function SpotlightCard({
 
   return (
     <MotionTag
+      layout={!reduceMotion}
+      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={reduceMotion ? undefined : { opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       whileHover={reduceMotion ? undefined : { y: -2 }}

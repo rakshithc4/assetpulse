@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import type { MouseEvent } from 'react';
