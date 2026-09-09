@@ -14,7 +14,12 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+      # pnpm/action-setup reads packageManager from a root package.json, but
+      # this is a polyglot repo (abap/ web/ analytics/) with none — version
+      # here must match web/package.json's "packageManager" field.
       - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
