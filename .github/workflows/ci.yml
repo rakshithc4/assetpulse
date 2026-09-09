@@ -33,6 +33,16 @@ jobs:
       - run: pnpm test -- --run
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
+        env:
+          # Throwaway CI-only value, not a real secret — mock-mode e2e never
+          # touches live data. Without it NextAuth has no stable key to
+          # encrypt/decrypt its session JWT across requests within the same
+          # server process, so every session silently fails to decrypt
+          # (JWEDecryptionFailed) and the app bounces back to /login mid-test.
+          # Locally this "just works" because web/.env.local (gitignored)
+          # already sets it — CI has no such file.
+          NEXTAUTH_SECRET: ci-only-throwaway-secret-not-used-in-prod
+          NEXTAUTH_URL: http://localhost:3000
 
   analytics:
     runs-on: ubuntu-latest
