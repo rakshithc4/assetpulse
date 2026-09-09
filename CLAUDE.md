@@ -62,3 +62,4 @@ scripts:     node web/scripts/sap-smoke.mjs | node web/scripts/seed.mjs
 - [x] Frontend complete (mock gates green) — 19 test files / 64 tests passing, lint+typecheck clean
 - [x] Analytics complete (mock gates green) — 16 tests passing, ruff clean — not yet deployed to Render
 - [ ] Live E2E + seed + docs + v1.0.0
+- [ ] Phase 7 — Fiori Launchpad secondary frontend (post-v1.0.0-scope addendum, plan §Phase 7) — blocked on Task 7.1's BTP entitlement checkpoint

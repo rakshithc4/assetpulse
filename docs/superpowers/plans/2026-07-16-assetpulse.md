@@ -7185,6 +7185,154 @@ git push origin v1.0.0
 
 ---
 
+## Phase 7 — Fiori Launchpad (secondary frontend)
+
+> **Added post-v1.0.0-scope**, by explicit user request: a second, SAP-native consumption surface (Fiori Elements + Launchpad) on top of the existing OData service, alongside — not replacing — the Next.js app (Phase 4). Rationale, and the decision that CAP was considered and rejected in favor of extending the existing RAP backend, belongs in a new ADR (Task 7.5).
+>
+> Head start already banked from Task 1.8: `zc_equipment.mdext.abap`, `zc_maint_req.mdext.abap`, and `zc_work_order.mdext.abap` already carry `@UI.headerInfo` / `@UI.lineItem` / `@UI.facet` / `@UI.identification` for all three entities — the metadata Fiori Elements needs to render List Report + Object Page apps already exists. This phase is BTP/BAS configuration work, not new ABAP.
+
+### Task 7.1: Confirm the Launchpad entitlement — 🧑 checkpoint
+
+**Interfaces:**
+- Consumes: the BTP subaccount hosting the ABAP environment used throughout Phases 1–2.
+- Produces: a go/no-go plus which of two paths Task 7.3 takes (generated Fiori Elements app in BAS, vs. Work Zone's built-in OData-service tile — the two subscription/config paths differ enough that Task 7.3's steps depend on this answer).
+
+- [ ] **Step 1: 🧑 MANUAL CHECKPOINT — check entitlement**
+
+```
+🧑 MANUAL CHECKPOINT — Launchpad / Work Zone entitlement
+
+1. https://cockpit.hanatrial.ondemand.com (or your student-account
+   region's cockpit) → open the subaccount.
+2. Entitlements → look for "SAP Build Work Zone, standard edition"
+   or "Launchpad Service" among assigned service plans.
+3. Not assigned? Entitlements → Configure Entitlements → search
+   "Work Zone" / "Launchpad" → Add Service Plan if available.
+4. Report back: exact service name + plan found, or "not available"
+   if the search returns nothing.
+```
+
+Blocks the rest of this phase — paste the result before Task 7.2 starts.
+
+### Task 7.2: Subscribe + assign the admin role collection
+
+**Interfaces:**
+- Consumes: Task 7.1's confirmed service name/plan.
+- Produces: an active subscription and launchpad-admin access for the user's own BTP user.
+
+- [ ] **Step 1: 🧑 MANUAL CHECKPOINT — subscribe and assign roles**
+
+```
+🧑 MANUAL CHECKPOINT — subscribe + role assignment
+
+1. Subaccount → Instances and Subscriptions → Subscriptions →
+   the service confirmed in Task 7.1 → Subscribe (if not already).
+2. Security → Users → your user → Assign Role Collection → assign
+   the launchpad/Work Zone admin role collection created by the
+   subscription (name varies: "Launchpad_Admin",
+   "WorkZoneStandard_Administrator", etc. — pick the one the
+   subscribe step generated).
+3. Open the subscribed app from the subscription tile to confirm
+   you land on an admin/site-builder screen, not a 403.
+4. Report back: confirmed working, or paste the exact error.
+```
+
+### Task 7.3: Fiori Elements apps for Equipment / Maintenance Request / Work Order
+
+**Interfaces:**
+- Consumes: the published `zui_assetpulse_o4` service binding (Task 2.1/2.2), the `@UI`-annotated projections (Task 1.8).
+- Produces: three List Report → Object Page apps, one per root entity.
+
+- [ ] **Step 1: 🧑 MANUAL CHECKPOINT — generate via SAP Business Application Studio**
+
+```
+🧑 MANUAL CHECKPOINT — generate the three apps in BAS
+
+Repeat per entity (Equipment / ZC_Equipment, Maintenance Request /
+ZC_Maint_Req, Work Order / ZC_Work_Order):
+
+1. BAS → Dev Space with the "SAP Fiori" extension (create one if
+   none exists — "Full Stack Cloud Application" dev space type).
+2. File → New Project from Template → "SAP Fiori Application" →
+   List Report Application.
+3. Data source: "Connect to a Service" → "OData Service" →
+   "System URL" using the same SAP_BASE_URL from this repo's .env,
+   or connect via a Destination if one exists for this system.
+4. Service: zui_assetpulse_o4. Main entity: the ZC_* projection for
+   this app.
+5. Module name: zap_equipment_lr / zap_maintreq_lr / zap_workorder_lr
+   (keeps the Z-namespace convention this repo already uses).
+6. Generate, then "Preview Application" in BAS to confirm it renders
+   the list + can open an object page — do this before moving to the
+   next entity, so a broken annotation is caught per-app, not after
+   all three.
+7. Report back: all three preview cleanly, or paste which app/step
+   failed and the exact error shown.
+```
+
+- [ ] **Step 2: Deploy each app to the ABAP repository (deploy to BTP ABAP Environment, not Cloud Foundry — matches this project's SAP BTP ABAP Environment target)**
+
+```
+🧑 MANUAL CHECKPOINT — deploy
+
+Per app, in BAS: right-click the project → Deploy → Deploy to ABAP.
+Target: the same system used throughout this project. Confirm the
+BSP application is created/activated in the system (visible in
+/n/UI5/UI5_REPOSITORY_LOAD or via ADT's Repository Browser under
+Fiori/UI5 Applications).
+
+Report back once all three are deployed and reachable at their
+generated BSP URLs.
+```
+
+### Task 7.4: Build the Launchpad site
+
+**Interfaces:**
+- Consumes: the three deployed apps (Task 7.3), the admin access confirmed in Task 7.2.
+- Produces: one launchpad site with a catalog, three tiles (one group), grouped role assignment so a demo user can actually see it.
+
+- [ ] **Step 1: 🧑 MANUAL CHECKPOINT — site, catalog, tiles**
+
+```
+🧑 MANUAL CHECKPOINT — build the site
+
+1. Work Zone/Launchpad admin console → Content Manager → create a
+   Catalog "AssetPulse" → add three static app tiles, one per
+   deployed BSP app from Task 7.3 (target mapping = the app's
+   semantic object/action, or its BSP URL directly).
+2. Create a Group "Asset Maintenance" containing all three tiles.
+3. Site Directory → create a Site → assign the Catalog + Group.
+4. Role: create/reuse a role assigning the Catalog, assign it to
+   your own user (or a demo user matching this project's existing
+   engineer/supervisor/technician personas if the account supports
+   multiple users — optional, single-admin-user is fine for a
+   portfolio demo).
+5. Open the site's public URL, confirm all three tiles appear and
+   each opens its app with live data from SAP.
+6. Report back the site URL and confirmed working, or paste what's
+   missing.
+```
+
+### Task 7.5: ADR + docs
+
+**Files:**
+- Create: `docs/adr/0006-fiori-launchpad-secondary-frontend.md`
+- Update: `README.md` (add the Launchpad site URL + a one-paragraph "why two frontends" note), `docs/CASE_STUDY.md` if Task 6.2 already exists.
+
+**Interfaces:**
+- Consumes: nothing new — pure documentation of the decision + result.
+
+- [ ] **Step 1: Write the ADR** — context (recruiters evaluating SAP-track roles want to see conventional Fiori competency, not just a custom frontend; CAP was considered and rejected — this project already committed to RAP per ADR 0001, and CAP would mean a second competing backend, not a complementary frontend), decision (Fiori Elements + Launchpad as an additional read/write surface on the same RAP backend and OData service, Next.js remains primary), consequences (two frontends to keep in sync if the domain model changes; annotations in `.mdext.abap` are now a shared contract consumed by both).
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add docs/adr/0006-fiori-launchpad-secondary-frontend.md README.md
+git commit -m "docs(7.5): ADR 0006 and README update for the Fiori Launchpad secondary frontend"
+```
+
+---
+
 ## Self-Review
 
 **Spec coverage:** §1 success criteria → Task 4.16/6.4 (live lifecycle demo), Task 0.2/CI (quality gates), Task 6.3 (README 10-minute mock-mode run). §2 architecture → Phases 1/4/5. §3 domain model → Task 1.1 (tables), Task 1.3 (CDS), Task 1.4/1.6/1.7 (status machines + cross-BO effects). §4 RAP layer → Tasks 1.1–1.10. §5 API contract → Task 1.10 (service), Task 4.6 (proxy). §6 analytics → Phase 5. §7 frontend → Phase 4 (every route, the domain.ts matrix, loading/empty/error states, optimistic mutations). §8 design → Phase 3. §9 quality/CI/professionalism → Task 0.2 (CI), ADRs throughout, Task 6.1 (seed), Task 6.2/6.3/6.5 (docs). §10 out of scope → `docs/V2_BACKLOG.md` (Task 0.1). §11 milestones → phase ordering matches 1–7 exactly.
