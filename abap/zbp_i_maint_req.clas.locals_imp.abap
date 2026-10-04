@@ -137,23 +137,23 @@ CLASS lhc_maintrequest IMPLEMENTATION.
     DATA work_orders TYPE TABLE FOR CREATE zi_work_order\\WorkOrder.
 
     LOOP AT keys INTO DATA(wo_key).
-      READ TABLE requests INTO DATA(req) WITH KEY %tky = wo_key-%tky.
-      CHECK sy-subrc = 0.
-      DATA(priority) = COND #( WHEN wo_key-%param-Priority IS NOT INITIAL THEN wo_key-%param-Priority ELSE req-Severity ).
+  READ TABLE requests INTO DATA(req) WITH KEY %tky = wo_key-%tky.
+  CHECK sy-subrc = 0.
+  DATA(priority) = COND #( WHEN wo_key-%param-Priority IS NOT INITIAL THEN wo_key-%param-Priority ELSE req-Severity ).
 
-      TRY.
-          DATA(wo_cid) = |WO_{ cl_system_uuid=>create_uuid_c32_static( ) }|.
-        CATCH cx_uuid_error.
-          CONTINUE.
-      ENDTRY.
+  TRY.
+      DATA(wo_cid) = |WO_{ cl_system_uuid=>create_uuid_c32_static( ) }|.
+    CATCH cx_uuid_error.
+      CONTINUE.
+  ENDTRY.
 
-      APPEND VALUE #( %cid            = wo_cid
-                       ReqId          = wo_key-ReqId
-                       EquipId        = req-EquipId
-                       Priority       = priority
-                       Status         = 'CREATED' )
-             TO work_orders.
-    ENDLOOP.
+  APPEND VALUE #( %cid            = wo_cid
+                   ReqId          = wo_key-ReqId
+                   EquipId        = req-EquipId
+                   Priority       = priority
+                   Status         = 'CREATED' )
+         TO work_orders.
+ENDLOOP.
 
     MODIFY ENTITIES OF zi_work_order PRIVILEGED
       ENTITY WorkOrder

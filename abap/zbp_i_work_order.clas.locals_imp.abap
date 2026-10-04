@@ -79,7 +79,7 @@ CLASS lhc_workorder IMPLEMENTATION.
     result = VALUE #( FOR upd IN updated ( %tky = upd-%tky %param = upd ) ).
   ENDMETHOD.
 
-  METHOD startwork.
+    METHOD startwork.
     READ ENTITIES OF zi_work_order IN LOCAL MODE
       ENTITY WorkOrder
         FIELDS ( EquipId ) WITH CORRESPONDING #( keys )
@@ -113,11 +113,13 @@ CLASS lhc_workorder IMPLEMENTATION.
     result = VALUE #( FOR upd IN updated ( %tky = upd-%tky %param = upd ) ).
   ENDMETHOD.
 
-  METHOD completework.
+    METHOD completework.
     READ ENTITIES OF zi_work_order IN LOCAL MODE
       ENTITY WorkOrder
         FIELDS ( EquipId ) WITH CORRESPONDING #( keys )
       RESULT DATA(orders).
+
+    DATA(now_ts) = cl_abap_tstmp=>utclong2tstmp( utclong_current( ) ).
 
     DATA(valid_keys) = keys.
     DELETE valid_keys WHERE %param-DowntimeHours < 0.
@@ -128,8 +130,6 @@ CLASS lhc_workorder IMPLEMENTATION.
                        %tky = bad_key-%tky )
              TO reported-workorder.
     ENDLOOP.
-
-    DATA(now_ts) = cl_abap_tstmp=>utclong2tstmp( utclong_current( ) ).
 
     IF valid_keys IS NOT INITIAL.
       MODIFY ENTITIES OF zi_work_order IN LOCAL MODE
@@ -210,3 +210,4 @@ CLASS lhc_workorder IMPLEMENTATION.
   ENDMETHOD.
 
 ENDCLASS.
+

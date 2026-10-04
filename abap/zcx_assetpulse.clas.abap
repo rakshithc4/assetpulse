@@ -53,7 +53,7 @@ CLASS zcx_assetpulse DEFINITION
 ENDCLASS.
 
 CLASS zcx_assetpulse IMPLEMENTATION.
-  METHOD constructor.
+  METHOD constructor ##ADT_SUPPRESS_GENERATION.
     super->constructor( previous = previous ).
     me->field_name  = field_name.
     me->field_value = field_value.

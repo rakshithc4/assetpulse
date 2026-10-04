@@ -10,16 +10,16 @@ CLASS ztc_assetpulse DEFINITION PUBLIC FOR TESTING
     CLASS-METHODS class_teardown.
     METHODS teardown.
 
-    METHODS create_equip_sets_operational           FOR TESTING RAISING cx_static_check.
-    METHODS crit_request_downs_equip                FOR TESTING RAISING cx_static_check.
+    METHODS create_equip_sets_operational      FOR TESTING RAISING cx_static_check.
+    METHODS crit_request_downs_equip        FOR TESTING RAISING cx_static_check.
     METHODS reject_without_note_fails                FOR TESTING RAISING cx_static_check.
-    METHODS reject_crit_restores_equip               FOR TESTING RAISING cx_static_check.
-    METHODS convert_creates_work_order               FOR TESTING RAISING cx_static_check.
+    METHODS reject_crit_restores_equip      FOR TESTING RAISING cx_static_check.
+    METHODS convert_creates_work_order              FOR TESTING RAISING cx_static_check.
     METHODS schedule_in_past_fails                   FOR TESTING RAISING cx_static_check.
     METHODS schedule_sets_scheduled                  FOR TESTING RAISING cx_static_check.
-    METHODS start_work_bad_from_created              FOR TESTING RAISING cx_static_check.
+    METHODS start_work_bad_from_created    FOR TESTING RAISING cx_static_check.
     METHODS start_work_sets_maintenance              FOR TESTING RAISING cx_static_check.
-    METHODS complete_neg_downtime_fails              FOR TESTING RAISING cx_static_check.
+    METHODS complete_neg_downtime_fails         FOR TESTING RAISING cx_static_check.
     METHODS complete_restores_operational            FOR TESTING RAISING cx_static_check.
     METHODS cancel_from_created                      FOR TESTING RAISING cx_static_check.
 
@@ -51,12 +51,12 @@ ENDCLASS.
 CLASS ztc_assetpulse IMPLEMENTATION.
 
   METHOD class_setup.
-    environment = cl_cds_test_environment=>create_for_multiple_cds(
-      i_for_entities = VALUE #( ( i_for_entity = 'ZI_AP_EQUIPMENT' )
-                                 ( i_for_entity = 'ZI_MAINT_REQ' )
-                                 ( i_for_entity = 'ZI_WORK_ORDER' ) ) ).
-    environment->enable_double_redirection( ).
-  ENDMETHOD.
+  environment = cl_cds_test_environment=>create_for_multiple_cds(
+    i_for_entities = VALUE #( ( i_for_entity = 'ZI_AP_EQUIPMENT' )
+                               ( i_for_entity = 'ZI_MAINT_REQ' )
+                               ( i_for_entity = 'ZI_WORK_ORDER' ) ) ).
+  environment->enable_double_redirection( ).
+ENDMETHOD.
 
   METHOD class_teardown.
     environment->destroy( ).
@@ -67,37 +67,36 @@ CLASS ztc_assetpulse IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_equipment.
-    equip_id = cl_system_uuid=>create_uuid_x16_static( ).
-    MODIFY ENTITIES OF zi_ap_equipment PRIVILEGED
-      ENTITY Equipment
-        CREATE FIELDS ( EquipId EquipTag Name EquipType Site Criticality )
-        WITH VALUE #( ( %cid = 'EQ1' EquipId = equip_id
-                         EquipTag = 'CRU-104' Name = 'Primary crusher'
-                         EquipType = 'CRUSHER' Site = 'Pilbara Site A'
-                         Criticality = criticality ) )
-      MAPPED   DATA(mapped)
-      FAILED   DATA(failed)
-      REPORTED DATA(reported).
-    COMMIT ENTITIES.
-
-    cl_abap_unit_assert=>assert_initial( act = failed-equipment ).
-    cl_abap_unit_assert=>assert_not_initial( act = mapped-equipment ).
-    cl_abap_unit_assert=>assert_equals( act = mapped-equipment[ 1 ]-EquipId exp = equip_id ).
-  ENDMETHOD.
+  equip_id = cl_system_uuid=>create_uuid_x16_static( ).
+  MODIFY ENTITIES OF zi_ap_equipment PRIVILEGED
+    ENTITY Equipment
+      CREATE FIELDS ( EquipId EquipTag Name EquipType Site Criticality )
+      WITH VALUE #( ( %cid = 'EQ1' EquipId = equip_id
+                       EquipTag = 'CRU-104' Name = 'Primary crusher'
+                       EquipType = 'CRUSHER' Site = 'Pilbara Site A'
+                       Criticality = criticality ) )
+    MAPPED   DATA(mapped)
+    FAILED   DATA(failed)
+    REPORTED DATA(reported).
+  COMMIT ENTITIES.
+  cl_abap_unit_assert=>assert_initial( act = failed-equipment ).
+  cl_abap_unit_assert=>assert_not_initial( act = mapped-equipment ).
+  cl_abap_unit_assert=>assert_equals( act = mapped-equipment[ 1 ]-EquipId exp = equip_id ).
+ENDMETHOD.
 
   METHOD create_request.
-    req_id = cl_system_uuid=>create_uuid_x16_static( ).
-    MODIFY ENTITIES OF zi_maint_req PRIVILEGED
-      ENTITY MaintReq
-        CREATE FIELDS ( ReqId EquipId Title Severity ReportedBy )
-        WITH VALUE #( ( %cid = 'REQ1' ReqId = req_id
-                         EquipId = equip_id Title = 'Bearing noise'
-                         Severity = severity ReportedBy = 'engineer@demo' ) )
-      MAPPED   DATA(mapped)
-      FAILED   DATA(failed)
-      REPORTED DATA(reported).
-    COMMIT ENTITIES.
-  ENDMETHOD.
+  req_id = cl_system_uuid=>create_uuid_x16_static( ).
+  MODIFY ENTITIES OF zi_maint_req PRIVILEGED
+    ENTITY MaintReq
+      CREATE FIELDS ( ReqId EquipId Title Severity ReportedBy )
+      WITH VALUE #( ( %cid = 'REQ1' ReqId = req_id
+                       EquipId = equip_id Title = 'Bearing noise'
+                       Severity = severity ReportedBy = 'engineer@demo' ) )
+    MAPPED   DATA(mapped)
+    FAILED   DATA(failed)
+    REPORTED DATA(reported).
+  COMMIT ENTITIES.
+ENDMETHOD.
 
   METHOD convert_to_order.
     MODIFY ENTITIES OF zi_maint_req PRIVILEGED
