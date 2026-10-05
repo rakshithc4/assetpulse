@@ -12,7 +12,7 @@ Each object is serialized as a set of files named `<object>.<type>.<ext>`:
 - `*.clas.abap`, `*.clas.locals_imp.abap`, `*.clas.xml`: classes (behavior pools, exception class, ABAP Unit tests)
 - `*.tabl.xml`: database tables
 - `*.srvd.srvdsrv`, `*.srvd.xml`: service definition
-- `*.srvb.xml`, `*.sco2.xml`: service binding and its OData V4 scope
+- `*.srvb.xml`, `*.sco2.xml`: service binding and the inbound service generated for it
 - `*.msag.xml`, `package.devc.xml`: message class and package
 
 ## Objects (all activated)
@@ -27,4 +27,4 @@ Each object is serialized as a set of files named `<object>.<type>.<ext>`:
 - [x] abapGit repo linked to ZASSET_MAINT and pushed
 
 ## Still to do
-- [ ] Communication scenario ZCS_ASSETPULSE and communication user (Task 2.1)
+- [ ] Communication system, user and arrangement for ZCS_ASSETPULSE. Scenario created and published in ADT; the rest isn't possible on the shared trial (no Communication Management apps)
