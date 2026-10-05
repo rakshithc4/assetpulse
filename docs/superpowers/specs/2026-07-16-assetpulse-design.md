@@ -78,14 +78,14 @@ Constraints carried over from ProcureFlow (proven): Claude Code cannot reach BTP
 
 ## 4. RAP layer (package `ZASSET_MAINT`)
 
-- 3 root view entities `ZI_EQUIPMENT`, `ZI_MAINT_REQ`, `ZI_WORK_ORDER` + projections `ZC_*` (provider contract transactional_query) + metadata extensions for the Fiori Elements admin preview.
+- 3 root view entities `ZI_AP_EQUIPMENT`, `ZI_MAINT_REQ`, `ZI_WORK_ORDER` + projections `ZC_*` (provider contract transactional_query) + metadata extensions for the Fiori Elements admin preview. (`ZI_AP_EQUIPMENT` carries an `AP_` infix — plain `ZI_EQUIPMENT` collided with another user's object in the shared BTP trial namespace; every other object name is unaffected.)
 - Managed, `strict(2)`, etag master ChangedAt, managed UUID numbering, EML only.
 - Abstract entities for action params: `ZA_REJECT {note}`, `ZA_SCHEDULE {scheduled_date, assigned_to}`, `ZA_COMPLETE {completion_notes, downtime_hours}`, `ZA_CANCEL {note}`, `ZA_CONVERT {priority}`.
 - Actions (result [1] $self): ConvertToWorkOrder (also creates ZWORK_ORDER via EML, copies severity→priority default), RejectRequest, Schedule, StartWork, CompleteWork, CancelOrder.
 - Determinations: initial statuses (REPORTED / CREATED / OPERATIONAL); severity CRITICAL → equipment DOWN.
 - Validations: title not initial; severity/criticality/type within domain lists; downtime_hours ≥ 0; scheduled_date ≥ today.
 - Instance feature control on Request + WorkOrder per the status machines (e.g. CompleteWork enabled only IN_PROGRESS).
-- ABAP Unit `ZTC_ASSETPULSE`: ~10 EML tests — every legal transition, every illegal transition rejected with message, reject-without-note fails, downtime<0 fails, and both cross-entity effects asserted by reading `ZI_EQUIPMENT` after the action.
+- ABAP Unit `ZTC_ASSETPULSE`: ~10 EML tests — every legal transition, every illegal transition rejected with message, reject-without-note fails, downtime<0 fails, and both cross-entity effects asserted by reading `ZI_AP_EQUIPMENT` after the action.
 - Service: `ZASSETPULSE_SRV` exposing Equipment, MaintenanceRequest, WorkOrder; binding `ZUI_ASSETPULSE_O4` (OData V4 – UI); communication scenario `ZCS_ASSETPULSE` + comm user for external access.
 - **abapGit from day one:** the ADT package is linked to the GitHub repo's `abap/` folder via abapGit, so real serialized ABAP is publicly visible (recruiter-checkable) and trial-reset recovery is one pull.
 

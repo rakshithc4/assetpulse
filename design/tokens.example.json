@@ -1,0 +1,28 @@
+{
+  "surface": { "base": "#0a0a0c", "panel": "#121216", "raised": "#1c1c22" },
+  "text": { "primary": "#f5f5f7", "secondary": "#a1a1aa", "muted": "#6b6b76" },
+  "severity": {
+    "low":      { "bg": "#1a2e22", "fg": "#4ade80", "border": "#22c55e" },
+    "medium":   { "bg": "#2e2a14", "fg": "#facc15", "border": "#eab308" },
+    "high":     { "bg": "#331f14", "fg": "#fb923c", "border": "#f97316" },
+    "critical": { "bg": "#331419", "fg": "#f87171", "border": "#ef4444" }
+  },
+  "opstatus": {
+    "operational": { "bg": "#132a1d", "fg": "#4ade80", "border": "#16a34a" },
+    "maintenance":  { "bg": "#332a12", "fg": "#fbbf24", "border": "#d97706" },
+    "down":         { "bg": "#330f12", "fg": "#f87171", "border": "#dc2626" }
+  },
+  "lifecycle": {
+    "created":     { "bg": "#1a1a20", "fg": "#d4d4d8", "border": "#3f3f46" },
+    "scheduled":   { "bg": "#141d2e", "fg": "#93c5fd", "border": "#3b82f6" },
+    "in_progress": { "bg": "#1e1a2e", "fg": "#c4b5fd", "border": "#8b5cf6" },
+    "completed":   { "bg": "#132a1d", "fg": "#4ade80", "border": "#16a34a" },
+    "cancelled":   { "bg": "#1a1a20", "fg": "#71717a", "border": "#3f3f46" }
+  },
+  "type": {
+    "fontSans": "Inter, system-ui, sans-serif",
+    "fontMono": "'JetBrains Mono', ui-monospace, monospace",
+    "scale": { "xs": "0.75rem", "sm": "0.875rem", "base": "1rem", "lg": "1.125rem", "xl": "1.25rem", "2xl": "1.5rem", "3xl": "2rem" }
+  },
+  "radius": { "sm": "4px", "md": "8px", "lg": "12px" }
+}

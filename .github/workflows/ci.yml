@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, feat/assetpulse-v1]
+  pull_request:
+    branches: [main, feat/assetpulse-v1]
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      # Node first, no cache yet — pnpm@11 needs Node >=22.13 to even run
+      # (it uses node:sqlite), so Node has to be current before pnpm/action-setup
+      # installs the pnpm binary. setup-node's `cache: pnpm` option needs pnpm
+      # already on PATH to resolve the store path, so that comes after instead.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # pnpm/action-setup reads packageManager from a root package.json, but
+      # this is a polyglot repo (abap/ web/ analytics/) with none — version
+      # here must match web/package.json's "packageManager" field.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test -- --run
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+        env:
+          # Throwaway CI-only value, not a real secret — mock-mode e2e never
+          # touches live data. Without it NextAuth has no stable key to
+          # encrypt/decrypt its session JWT across requests within the same
+          # server process, so every session silently fails to decrypt
+          # (JWEDecryptionFailed) and the app bounces back to /login mid-test.
+          # Locally this "just works" because web/.env.local (gitignored)
+          # already sets it — CI has no such file.
+          NEXTAUTH_SECRET: ci-only-throwaway-secret-not-used-in-prod
+          NEXTAUTH_URL: http://localhost:3000
+
+  analytics:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: analytics
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: ruff check .
+      - run: MOCK_MODE=1 pytest -v

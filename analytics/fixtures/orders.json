@@ -1,0 +1,8 @@
+[
+  { "OrderId": "1", "EquipId": "1", "Status": "COMPLETED", "StartedAt": "2026-07-10T00:00:00Z", "CompletedAt": "2026-07-10T06:00:00Z", "DowntimeHours": 6.0 },
+  { "OrderId": "2", "EquipId": "2", "Status": "COMPLETED", "StartedAt": "2026-07-05T00:00:00Z", "CompletedAt": "2026-07-05T04:00:00Z", "DowntimeHours": 4.0 },
+  { "OrderId": "3", "EquipId": "3", "Status": "IN_PROGRESS", "StartedAt": "2026-07-16T00:00:00Z", "CompletedAt": null, "DowntimeHours": null },
+  { "OrderId": "4", "EquipId": "4", "Status": "SCHEDULED", "StartedAt": null, "CompletedAt": null, "DowntimeHours": null },
+  { "OrderId": "5", "EquipId": "1", "Status": "CREATED", "StartedAt": null, "CompletedAt": null, "DowntimeHours": null },
+  { "OrderId": "6", "EquipId": "3", "Status": "COMPLETED", "StartedAt": "2026-05-25T00:00:00Z", "CompletedAt": "2026-05-25T10:00:00Z", "DowntimeHours": 10.0 }
+]
