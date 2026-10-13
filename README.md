@@ -1,5 +1,7 @@
 # AssetPulse
 
+![Architecture](docs/assetpulse-architecture.png)
+
 [![CI](https://github.com/rakshithc4/assetpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/rakshithc4/assetpulse/actions/workflows/ci.yml)
 
 Asset maintenance control room modeled on SAP Plant Maintenance, built for the Perth/Sydney mining sector. SAP RAP business objects on BTP ABAP Environment (system of record) + a dark-first Next.js control room + a Python FastAPI analytics service.
