@@ -26,3 +26,6 @@ analytics/*.egg-info/
 
 # worktrees (safety net if git worktree fallback is ever used)
 .worktrees/
+
+# local AI-assistant tooling
+.claude/

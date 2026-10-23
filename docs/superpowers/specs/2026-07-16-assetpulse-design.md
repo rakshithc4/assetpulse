@@ -124,7 +124,7 @@ Routes:
 
 Every data view ships loading skeleton, empty state, error state with retry. Mutations: optimistic update → invalidate; rollback + toast on 4xx/5xx. Confirmation dialogs on all irreversible actions.
 
-## 8. Design language (binding; full detail in DESIGN_BRIEF.md → executed via Claude Design before any UI code)
+## 8. Design language (binding; full detail in docs/planning/DESIGN_BRIEF.md → executed via Claude Design before any UI code)
 
 Dark-first operations control room: near-black layered surfaces, high-contrast type, monospace accents for equipment tags/IDs/timestamps, a severity/criticality color system (LOW→CRITICAL) and an op-status system (OPERATIONAL/MAINTENANCE/DOWN) that never rely on color alone (always icon or label), restrained motion (≤200ms, reduced-motion respected), WCAG AA on all pairings. Distinctive, not template-flavored — this app should be visually memorable in a portfolio review. Light mode is a stretch goal, not v1.
 

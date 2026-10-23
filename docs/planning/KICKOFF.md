@@ -1,5 +1,7 @@
 # KICKOFF — AssetPulse
 
+> **Historical planning document**, moved out of the repo root as this file's own first paragraph planned. It records the original v1.0.0 target. One point differs from what shipped: the hosted demo runs on built-in sample data, not on live SAP data, because the shared BTP trial has no Communication Management apps. See "How the demo works" in the [README](../../README.md).
+
 How to take these documents from zero to shipped. Keep this file in the repo root until v1.0.0, then move to docs/.
 
 ## 1. One-time setup (you, ~10 minutes)

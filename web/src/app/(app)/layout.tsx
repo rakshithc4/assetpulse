@@ -9,7 +9,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!session) redirect('/login');
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between border-b border-surface-raised bg-surface-panel px-6 py-3">
         <nav className="flex gap-4 text-sm">
           <Link href="/" className="text-content-primary hover:text-content-secondary">Control room</Link>

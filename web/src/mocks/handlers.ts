@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { equipment, maintRequests, workOrders } from './fixtures';
+import { FALLBACK_BACKLOG, FALLBACK_FREQUENCY, FALLBACK_SUMMARY, fallbackDowntime } from '@/lib/insights-fallback';
 import type { MaintenanceRequest, WorkOrder } from '@/lib/types';
 
 const ACTION_NS = 'com.sap.gateway.srvd.zassetpulse_srv.v0001';
@@ -199,41 +200,14 @@ export const handlers = [
     return HttpResponse.json(order);
   }),
 
-  http.get('/api/insights/kpi/summary', () =>
-    HttpResponse.json({
-      mttr_hours: 6.4,
-      open_requests_by_severity: { LOW: 1, MEDIUM: 2, HIGH: 1, CRITICAL: 1 },
-      open_orders: 3,
-      equipment_availability_pct: 83.3,
-      total_downtime_hours_30d: 42.5,
-    }),
-  ),
+  http.get('/api/insights/kpi/summary', () => HttpResponse.json(FALLBACK_SUMMARY)),
 
   http.get('/api/insights/kpi/downtime', ({ request }) => {
-    const url = new URL(request.url);
-    const by = url.searchParams.get('by') ?? 'site';
-    return HttpResponse.json({
-      by,
-      data:
-        by === 'site'
-          ? [{ group: 'Pilbara Site A', downtime_hours: 30 }, { group: 'Goldfields Site B', downtime_hours: 12.5 }]
-          : [{ group: 'CRUSHER', downtime_hours: 18 }, { group: 'CONVEYOR', downtime_hours: 9 }],
-    });
+    const by = new URL(request.url).searchParams.get('by') ?? 'site';
+    return HttpResponse.json(fallbackDowntime(by));
   }),
 
-  http.get('/api/insights/kpi/backlog-aging', () =>
-    HttpResponse.json({ buckets: [{ range: '0-7', count: 3 }, { range: '8-30', count: 2 }, { range: '30+', count: 1 }] }),
-  ),
+  http.get('/api/insights/kpi/backlog-aging', () => HttpResponse.json(FALLBACK_BACKLOG)),
 
-  http.get('/api/insights/kpi/frequency', () =>
-    HttpResponse.json({
-      data: [
-        { equip_type: 'CRUSHER', count: 4 },
-        { equip_type: 'CONVEYOR', count: 2 },
-        { equip_type: 'PUMP', count: 3 },
-        { equip_type: 'HAUL_TRUCK', count: 1 },
-        { equip_type: 'DRILL', count: 1 },
-      ],
-    }),
-  ),
+  http.get('/api/insights/kpi/frequency', () => HttpResponse.json(FALLBACK_FREQUENCY)),
 ];

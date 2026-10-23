@@ -24,4 +24,4 @@ The hover-underline link micro-interaction used for "View all" links on the cont
 
 ## What's not in this pass
 
-Full screen mockups (7 screens + 2 key dialogs) called for in `DESIGN_BRIEF.md` weren't generated here — this pass covered tokens only, since that's what actually drives the Tailwind build. Components consume these tokens directly in dev; if full static mockups are wanted later (e.g. for a portfolio case study image), run the brief's screen deliverables separately.
+Full screen mockups (7 screens + 2 key dialogs) called for in `docs/planning/DESIGN_BRIEF.md` weren't generated here — this pass covered tokens only, since that's what actually drives the Tailwind build. Components consume these tokens directly in dev; if full static mockups are wanted later (e.g. for a portfolio case study image), run the brief's screen deliverables separately.
