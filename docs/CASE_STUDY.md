@@ -1,7 +1,7 @@
 # AssetPulse — Case Study
 
 ## Problem
-Mining operators (BHP, Rio Tinto, Fortescue — all SAP Plant Maintenance shops) run asset-maintenance workflows across hundreds of pieces of critical equipment: a fault is reported, triaged into a work order, scheduled, executed, and analysed. Getting this wrong costs unplanned downtime measured in the hundreds of thousands of dollars per incident on CRITICAL equipment. AssetPulse is a from-scratch implementation of that workflow, built to demonstrate SAP RAP/BTP consulting competency end to end — not a UI mockup of one.
+Mining operators (BHP, Rio Tinto, Fortescue — all SAP Plant Maintenance shops) run asset-maintenance workflows across hundreds of pieces of critical equipment: a fault is reported, triaged into a work order, scheduled, executed, and analysed. Getting this wrong costs unplanned downtime measured in the hundreds of thousands of dollars per incident on CRITICAL equipment. AssetPulse is a from-scratch implementation of that workflow, built to demonstrate SAP RAP/BTP consulting competency: a real, tested RAP backend with a purpose-built frontend, not a UI mockup.
 
 ## Solution
 Three entities (Equipment, MaintenanceRequest, WorkOrder) modeled as RAP managed business objects on SAP BTP ABAP Environment, with six actions enforcing a strict status machine and two cross-BO effects that are the differentiator: starting a work order flips its equipment to MAINTENANCE; completing it flips the equipment back to OPERATIONAL and records downtime. A CRITICAL-severity fault report immediately downs the equipment at creation — before anyone has even looked at it — mirroring how a real control room would triage risk.
@@ -18,12 +18,17 @@ SAP BTP ABAP Environment: OData v4 ← RAP managed BOs ← CDS ← HANA (3 table
 FastAPI on Render: httpx → SAP OData → pandas-style aggregation → JSON (5-min cache; fixture mock mode)
 ```
 
+This is the full design. In the hosted demo the SAP link is replaced by in-browser sample data (see below).
+
+## How the demo runs
+The hosted demo runs entirely on built-in sample data: an in-browser mock layer answers the app's API calls and keeps state in memory, so the whole fault → convert → schedule → start → complete lifecycle works, but nothing persists and no SAP system is contacted. The RAP backend was built, tested (ABAP Unit 12/12) and checked (ATC 0 errors) separately on SAP BTP ABAP Environment, and its source is serialized into `abap/` by abapGit. The shared trial has no Communication Management apps, so the hosted demo isn't connected to the live OData service; `docs/REDEPLOY.md` covers the SAP side.
+
 Key decisions are recorded as ADRs in `docs/adr/`: managed RAP over unmanaged (0001), server-side SAP proxy (0002), a separate analytics service (0003), dark-first design (0004), abapGit as source of truth (0005).
 
 ## Outcomes
-- 3 RAP business objects, 6 actions, 2 cross-BO effects, ~12 ABAP Unit tests, ATC-clean.
+- 3 RAP business objects, 6 actions, 2 cross-BO effects, 12 ABAP Unit tests (12/12 passing in ADT), ATC with 0 errors.
 - 4 analytics endpoints with pandas-style KPI formulas, tested against fixtures with exact expected values.
-- 7 frontend routes, one tested role×status permission matrix, full mock-mode CI (lint, typecheck, unit, e2e) plus a live E2E path against real SAP data.
+- 10 frontend page routes, one tested role×status permission matrix, and full mock-mode CI (lint, typecheck, unit, e2e). A `pnpm e2e:live` suite exists for a SAP-connected deployment; it has not been run against SAP, because the shared BTP trial has no Communication Management apps.
 - Public GitHub repo with real, abapGit-serialized ABAP source — the ABAP work is verifiable, not described.
 
 ## What this demonstrates for SAP consulting roles

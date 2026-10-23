@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Verifies the published OData v4 service is reachable before wiring the frontend to it.
-// Run: node --env-file=../.env web/scripts/sap-smoke.mjs   (from repo root)
+// Run: node --env-file=.env web/scripts/sap-smoke.mjs   (from repo root; .env needs SAP_USER/SAP_PASS/SAP_BASE_URL/SAP_SERVICE_PATH)
 
 const required = ['SAP_BASE_URL', 'SAP_SERVICE_PATH', 'SAP_USER', 'SAP_PASS'];
 const missing = required.filter((key) => !process.env[key]);
