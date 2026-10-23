@@ -10,6 +10,7 @@ import { KpiCard } from '@/components/kpi-card';
 import { OpStatusBadge, SeverityBadge } from '@/components/badges';
 import { EmptyState, ErrorState, Skeleton } from '@/components/states';
 import { SpotlightCard } from '@/components/ui/spotlight-card';
+import { AnalyticsWaking, FallbackNote } from '@/components/analytics-status';
 import { Link001 } from '@/components/ui/skiper-ui/skiper40';
 import tokens from '../../../../design/tokens.json';
 
@@ -34,22 +35,26 @@ export default function DashboardPage() {
         <AmbientOrb className="h-12 w-12 shrink-0" />
         <div>
           <h1 className="text-lg font-medium text-content-primary">Control room</h1>
-          <p className="text-xs text-content-secondary">Live status across every registered asset.</p>
+          <p className="text-xs text-content-secondary">Status across every registered asset.</p>
         </div>
       </div>
 
-      <section aria-label="KPI summary" className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {kpi.isLoading && Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
-        {kpi.isError && <ErrorState message="Could not load KPIs" onRetry={() => kpi.refetch()} />}
-        {kpi.data && (
-          <>
-            <KpiCard label="MTTR" value={kpi.data.mttr_hours} decimals={1} unit="hrs" accent={tokens.lifecycle.scheduled.border} />
-            <KpiCard label="Availability" value={kpi.data.equipment_availability_pct} decimals={1} unit="%" accent={tokens.opstatus.operational.border} />
-            <KpiCard label="Open orders" value={kpi.data.open_orders} accent={tokens.lifecycle.in_progress.border} />
-            <KpiCard label="Downtime (30d)" value={kpi.data.total_downtime_hours_30d} decimals={1} unit="hrs" accent={tokens.severity.critical.border} />
-          </>
-        )}
-      </section>
+      <div className="flex flex-col gap-2">
+        <section aria-label="KPI summary" className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {kpi.isLoading && Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
+          {kpi.isError && <ErrorState message="Could not load KPIs" onRetry={() => kpi.refetch()} />}
+          {kpi.data && (
+            <>
+              <KpiCard label="MTTR" value={kpi.data.mttr_hours} decimals={1} unit="hrs" accent={tokens.lifecycle.scheduled.border} />
+              <KpiCard label="Availability" value={kpi.data.equipment_availability_pct} decimals={1} unit="%" accent={tokens.opstatus.operational.border} />
+              <KpiCard label="Open orders" value={kpi.data.open_orders} accent={tokens.lifecycle.in_progress.border} />
+              <KpiCard label="Downtime (30d)" value={kpi.data.total_downtime_hours_30d} decimals={1} unit="hrs" accent={tokens.severity.critical.border} />
+            </>
+          )}
+        </section>
+        {kpi.isLoading && <AnalyticsWaking />}
+        {kpi.isFallback && <FallbackNote />}
+      </div>
 
       <section aria-label="Equipment status board">
         <div className="mb-2 flex items-center justify-between">

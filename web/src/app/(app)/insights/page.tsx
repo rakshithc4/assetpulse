@@ -3,12 +3,13 @@ import type { ReactNode } from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useKpiDowntime, useKpiBacklogAging, useKpiFrequency } from '@/hooks/use-insights';
 import { ErrorState, Skeleton } from '@/components/states';
+import { AnalyticsWaking, FallbackNote } from '@/components/analytics-status';
 import tokens from '../../../../../design/tokens.example.json';
 
 // Recharts needs literal color values (SVG props), not Tailwind classes, so these
 // read straight from the same tokens.json every other component consumes via
 // tailwind.config.ts — never hand-picked hex. The aging ramp intentionally reuses
-// the severity ramp per DESIGN_BRIEF.md ("the severity ramp reused for aging buckets").
+// the severity ramp per docs/planning/DESIGN_BRIEF.md ("the severity ramp reused for aging buckets").
 const GRID_COLOR = tokens.text.muted;
 const AXIS_COLOR = tokens.text.secondary;
 const TOOLTIP_BG = tokens.surface.raised;
@@ -42,12 +43,17 @@ export default function InsightsPage() {
   const backlogAging = useKpiBacklogAging();
   const frequency = useKpiFrequency();
   const mockBadge = process.env.NEXT_PUBLIC_MOCK_MODE === '1';
+  const queries = [downtimeBySite, downtimeByType, backlogAging, frequency];
+  const anyLoading = queries.some((q) => q.isLoading);
+  const anyFallback = queries.some((q) => q.isFallback);
 
   return (
     <div className="flex flex-col gap-6">
       <p className="text-sm text-content-secondary">
         Last 90 days{mockBadge && <span className="ml-2 rounded border border-surface-raised px-1.5 py-0.5 text-xs">mock mode</span>}
       </p>
+      {anyLoading && <AnalyticsWaking />}
+      {!anyLoading && anyFallback && <FallbackNote />}
 
       <ChartPanel title="Downtime by site" query={downtimeBySite}>
         {(data) => (
