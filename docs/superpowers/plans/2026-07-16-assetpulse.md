@@ -2189,7 +2189,7 @@ git commit -m "docs(2.3): ADR 0002"
 
 ## Phase 3 — Design Tokens
 
-The real `design/tokens.json` is produced by an external Claude Design run against `DESIGN_BRIEF.md` (🧑, outside this session — KICKOFF.md §3 Phase 3). Claude Code's job is to define the exact schema that run must conform to, ship a fixture matching it so the schema itself is testable now, and (in Task 4.1) wire Tailwind to read the real file directly — no generator/build step needed, Tailwind config is already JS and can `import` JSON as-is.
+The real `design/tokens.json` is produced by an external Claude Design run against `docs/planning/DESIGN_BRIEF.md` (🧑, outside this session — docs/planning/KICKOFF.md §3 Phase 3). Claude Code's job is to define the exact schema that run must conform to, ship a fixture matching it so the schema itself is testable now, and (in Task 4.1) wire Tailwind to read the real file directly — no generator/build step needed, Tailwind config is already JS and can `import` JSON as-is.
 
 ### Task 3.1: Tokens schema + fixture + 🧑 checkpoint
 
@@ -2238,10 +2238,10 @@ The real `design/tokens.json` is produced by an external Claude Design run again
 ```
 🧑 MANUAL CHECKPOINT — Claude Design
 
-1. Run your Claude Design skill against DESIGN_BRIEF.md.
+1. Run your Claude Design skill against docs/planning/DESIGN_BRIEF.md.
 2. Deliverable "1" (tokens.json) MUST match the shape in design/tokens.example.json exactly — same top-level keys (surface, text, severity, opstatus, lifecycle, type, radius), same nested keys, values are the only thing that changes. If the design run produces different key names, normalize them to this shape before saving — Task 3.2's schema and Task 4.1's Tailwind config both hard-depend on these exact names.
 3. Save the real output as design/tokens.json (not .example.json — that one stays as the schema fixture).
-4. Save the 7 screens + 2 dialogs and design/README.md per DESIGN_BRIEF.md's deliverables list.
+4. Save the 7 screens + 2 dialogs and design/README.md per docs/planning/DESIGN_BRIEF.md's deliverables list.
 5. Paste back: confirmation design/tokens.json exists and lists its top-level keys so we can sanity-check them against the fixture before Task 3.2 runs.
 ```
 
@@ -2348,7 +2348,7 @@ git commit -m "feat(3.2): zod schema validating the design tokens shape"
 # ADR 0004: Dark-first design direction, no v1 light theme
 
 ## Context
-AssetPulse's audience is a recruiter reviewing a portfolio piece and a 2am mine-site control room operator — both contexts favor a dense, high-contrast, low-glare surface over a generic light SaaS dashboard. Spec §8 and DESIGN_BRIEF.md both specify a three-elevation dark surface system with two independent, non-color-only meaning systems (severity, op-status).
+AssetPulse's audience is a recruiter reviewing a portfolio piece and a 2am mine-site control room operator — both contexts favor a dense, high-contrast, low-glare surface over a generic light SaaS dashboard. Spec §8 and docs/planning/DESIGN_BRIEF.md both specify a three-elevation dark surface system with two independent, non-color-only meaning systems (severity, op-status).
 
 ## Decision
 Ship dark-only for v1. `design/tokens.json` (Task 3.1) defines exactly one surface set; `tailwind.config.ts` (Task 4.1) has no light-mode variant wired up. Light theme is explicitly out of scope (spec §10) and lives in `docs/V2_BACKLOG.md`.
@@ -5715,7 +5715,7 @@ Expected: FAIL with "Cannot find module './page'"
 
 - [ ] **Step 3: Write `web/src/app/(app)/insights/page.tsx`**
 
-Recharts needs literal color values (SVG props), not Tailwind classes — so these read straight from `design/tokens.example.json`, the same source `tailwind.config.ts` consumes for every other component, instead of hand-picked hex (a real CLAUDE.md rule-7 violation caught in the final whole-branch review — every value below matches an existing token exactly). The aging ramp intentionally reuses the severity ramp per DESIGN_BRIEF.md ("the severity ramp reused for aging buckets").
+Recharts needs literal color values (SVG props), not Tailwind classes — so these read straight from `design/tokens.example.json`, the same source `tailwind.config.ts` consumes for every other component, instead of hand-picked hex (a real CLAUDE.md rule-7 violation caught in the final whole-branch review — every value below matches an existing token exactly). The aging ramp intentionally reuses the severity ramp per docs/planning/DESIGN_BRIEF.md ("the severity ramp reused for aging buckets").
 
 ```tsx
 'use client';
