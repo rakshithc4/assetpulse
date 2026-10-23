@@ -23,7 +23,7 @@ export function LoginHero({
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center px-4">
+    <div className="relative flex w-full flex-1 flex-col items-center justify-center px-4">
       <div className="fixed inset-0 -z-10">
         <ShaderBackground className="h-full w-full" />
       </div>
